@@ -53,6 +53,10 @@ jobs:
       - name: Search AVAILABLE SLOTS in source
         run: grep -rn "AVAILABLE SLOTS" lib/ || echo "NOT FOUND"
 
+      - name: Find all dart files with service
+        run: |
+            grep -rn "SERVICE" lib/ | grep -v "//\|debugPrint\|serviceName\|service_\|ServiceModel\|CustomerService\|SupabaseService\|AuthService\|services\|serviceId\|selectedService\|durationMap\|loadService" || echo "NOT FOUND"  
+
 
       - name: Copy vercel.json
         run: cp web/vercel.json build/web/vercel.json

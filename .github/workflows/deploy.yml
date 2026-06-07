@@ -23,7 +23,7 @@ jobs:
       - name: Print source file
         run: |
             echo "=== LINES 310-325 ==="
-            sed -n '310,325p' lib/pages/public_booking_page.dart  
+            sed -n '310,325p' lib/pages/guest_booking_page.dart
 
       - name: Clean dart cache
         run: rm -rf ~/.pub-cache

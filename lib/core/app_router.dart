@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-//import '../pages/public_booking_page.dart';
 import '../widgets/auth_gate.dart';
 import '../pages/not_found_page.dart';
 import '../pages/cancel_booking_page.dart';
@@ -18,15 +17,10 @@ class AppRouter {
           : '';
 
       return MaterialPageRoute(
-        // ✅ Aggiorna il costruttore
-        //builder: (_) => BookingPublicPage(businessId: id),
-        //builder: (_) => PublicBookingPage(businessId: id),
-
         builder: (_) => GuestBookingPage(businessId: id),
       );
     }
-
-    // In AppRouter.generateRoute()
+    
     if (uri.pathSegments.isNotEmpty &&
         uri.pathSegments.first == 'cancel') {
       final id = uri.pathSegments.length > 1

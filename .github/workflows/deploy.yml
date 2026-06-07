@@ -57,6 +57,8 @@ jobs:
         run: |
             grep -rn "SERVICE" lib/ | grep -v "//\|debugPrint\|serviceName\|service_\|ServiceModel\|CustomerService\|SupabaseService\|AuthService\|services\|serviceId\|selectedService\|durationMap\|loadService" || echo "NOT FOUND"  
 
+      - name: Search everywhere
+        run: grep -rn "DEBUG SERVICE" . --include="*.dart" --exclude-dir=".git" || echo "NOT FOUND ANYWHERE"
 
       - name: Copy vercel.json
         run: cp web/vercel.json build/web/vercel.json

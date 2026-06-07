@@ -28,6 +28,11 @@ jobs:
             grep -c "DEBUG SERVICE" build/web/main.dart.js && echo "DEBUG SERVICE FOUND" || echo "DEBUG SERVICE NOT FOUND"
             grep -c "I tuoi dati" build/web/main.dart.js && echo "I TUOI DATI FOUND" || echo "I TUOI DATI NOT FOUND"
 
+      - name: Check source code
+        run: |
+          grep -rn "DEBUG SERVICE" lib/ || echo "NOT FOUND IN SOURCE"
+          grep -rn "I tuoi dati" lib/ || echo "NOT FOUND IN SOURCE"    
+
       - name: Copy vercel.json
         run: cp web/vercel.json build/web/vercel.json
 

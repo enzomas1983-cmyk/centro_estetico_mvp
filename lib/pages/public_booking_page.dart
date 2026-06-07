@@ -282,7 +282,7 @@ class _PublicBookingPageState extends State<PublicBookingPage> {
                       const Text("Stai prenotando per",
                           style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
                       const SizedBox(height: 12),
-                      Text("💅 $selectedServiceName",
+                      Text(selectedServiceName,
                           style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
                       const SizedBox(height: 8),
                       Text("Durata: $selectedServiceDuration minuti",

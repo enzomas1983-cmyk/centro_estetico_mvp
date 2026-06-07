@@ -254,7 +254,7 @@ class _PublicBookingPageState extends State<PublicBookingPage> {
 
               // SERVIZIO
               DropdownButtonFormField<String>(
-                value: selectedServiceId,
+                //value: selectedServiceId,
                 decoration: const InputDecoration(labelText: "Seleziona servizio"),
                 items: services.map((s) => DropdownMenuItem(
                   value: s['id'].toString(),

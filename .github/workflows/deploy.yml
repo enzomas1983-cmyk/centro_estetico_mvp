@@ -63,6 +63,9 @@ jobs:
       - name: Search GuestBookingPage in build
         run: grep -c "GuestBookingPage\|guest_booking\|PublicBookingPage" build/web/main.dart.js || echo "NOT FOUND"
 
+      - name: Show DEBUG SERVICE full context
+        run: sed -n '56080,56110p' build/web/main.dart.js
+
       - name: Copy vercel.json
         run: cp web/vercel.json build/web/vercel.json
 

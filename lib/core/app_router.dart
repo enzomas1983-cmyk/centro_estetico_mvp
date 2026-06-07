@@ -20,7 +20,9 @@ class AppRouter {
       return MaterialPageRoute(
         // ✅ Aggiorna il costruttore
         //builder: (_) => BookingPublicPage(businessId: id),
-        builder: (_) => PublicBookingPage(businessId: id),
+        //builder: (_) => PublicBookingPage(businessId: id),
+
+        builder: (_) => GuestBookingPage(businessId: id),
       );
     }
 

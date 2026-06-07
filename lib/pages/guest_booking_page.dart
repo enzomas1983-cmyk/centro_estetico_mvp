@@ -3,15 +3,15 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../core/booking_rules.dart';
 import 'package:intl/intl.dart';
 
-class PublicBookingPage extends StatefulWidget {
+class GuestBookingPage extends StatefulWidget {
   final String businessId;
-  const PublicBookingPage({super.key, required this.businessId});
+  const GuestBookingPage({super.key, required this.businessId});
 
   @override
-  State<PublicBookingPage> createState() => _PublicBookingPageState();
+  State<GuestBookingPage> createState() => _GuestBookingPageState();
 }
 
-class _PublicBookingPageState extends State<PublicBookingPage> {
+class _GuestBookingPageState extends State<GuestBookingPage> {
   final supabase = Supabase.instance.client;
   final _formKey = GlobalKey<FormState>();
 

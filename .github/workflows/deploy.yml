@@ -70,7 +70,7 @@ jobs:
         run: grep -rn "\"DEBUG" lib/ || echo "NOT FOUND"
 
       - name: Search DEBUG SERVICE in Flutter SDK
-        run: grep -rn "DEBUG SERVICE" $FLUTTER_ROOT/packages/ --include="*.dart" | head -10 || echo "NOT FOUND IN SDK"  
+        run: grep -rn "DEBUG SERVICE" $FLUTTER_ROOT/packages/ --include="*.dart" | head -10 || echo "NOT FOUND IN SDK"
 
       - name: Show DEBUG SERVICE full context
         run: sed -n '56080,56110p' build/web/main.dart.js

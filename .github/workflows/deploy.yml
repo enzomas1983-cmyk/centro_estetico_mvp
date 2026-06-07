@@ -23,6 +23,12 @@ jobs:
       - name: Build web
         run: flutter build web --release
 
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: web-build
+          path: build/web/main.dart.js
+
       - name: Copy vercel.json
         run: cp web/vercel.json build/web/vercel.json
 

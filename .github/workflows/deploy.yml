@@ -23,6 +23,14 @@ jobs:
       - name: Build web
         run: flutter build web --release
 
+      - name: Check build content
+        run: |
+            grep -c "DEBUG SERVICE" build/web/main.dart.js && echo "DEBUG SERVICE FOUND" || echo "DEBUG SERVICE NOT FOUND"
+            grep -c "I tuoi dati" build/web/main.dart.js && echo "I TUOI DATI FOUND" || echo "I TUOI DATI NOT FOUND"
+
+      - name: Copy vercel.json
+        run: cp web/vercel.json build/web/vercel.json
+
       - name: Copy vercel.json
         run: cp web/vercel.json build/web/vercel.json
 

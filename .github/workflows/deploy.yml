@@ -63,6 +63,12 @@ jobs:
       - name: Search GuestBookingPage in build
         run: grep -c "GuestBookingPage\|guest_booking\|PublicBookingPage" build/web/main.dart.js || echo "NOT FOUND"
 
+      - name: Show booking_page content
+        run: grep -n "DEBUG SERVICE\|debug.*service\|Text.*service" lib/pages/booking_page.dart || echo "NOT FOUND"
+
+      - name: Search DEBUG in all dart files
+        run: grep -rn "\"DEBUG" lib/ || echo "NOT FOUND"
+
       - name: Show DEBUG SERVICE full context
         run: sed -n '56080,56110p' build/web/main.dart.js
 

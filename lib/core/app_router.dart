@@ -20,7 +20,7 @@ class AppRouter {
         builder: (_) => GuestBookingPage(businessId: id),
       );
     }
-    
+
     if (uri.pathSegments.isNotEmpty &&
         uri.pathSegments.first == 'cancel') {
       final id = uri.pathSegments.length > 1

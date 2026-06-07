@@ -50,6 +50,9 @@ jobs:
       - name: Find surrounding code
         run: grep -n "AVAILABLE SLOTS\|DEBUG SERVICE\|Prenota online\|I tuoi dati" build/web/main.dart.js
 
+      - name: Search AVAILABLE SLOTS in source
+        run: grep -rn "AVAILABLE SLOTS" lib/ || echo "NOT FOUND"
+
 
       - name: Copy vercel.json
         run: cp web/vercel.json build/web/vercel.json

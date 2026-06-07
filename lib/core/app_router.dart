@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import '../pages/public_booking_page.dart';
+//import '../pages/public_booking_page.dart';
 import '../widgets/auth_gate.dart';
 import '../pages/not_found_page.dart';
 import '../pages/cancel_booking_page.dart';
+import '../pages/guest_booking_page.dart';
 
 class AppRouter {
   static Route<dynamic> generateRoute(RouteSettings settings) {

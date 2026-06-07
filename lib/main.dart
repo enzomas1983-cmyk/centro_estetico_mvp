@@ -7,7 +7,7 @@ import 'providers/auth_provider.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:flutter/foundation.dart';
 import 'core/app_router.dart';
-import 'pages/public_booking_page.dart' show PublicBookingPage;
+//import 'pages/public_booking_page.dart' show PublicBookingPage;
 /// commentato per eseguire su APP ///
 //import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 

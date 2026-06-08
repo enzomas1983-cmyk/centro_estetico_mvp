@@ -1369,7 +1369,7 @@ class _ProCalendarPageState
 // DATA SOURCE
 // ===========================================================
 
-class AppointmentDataSource extends CalendarDataSource {
+/*class AppointmentDataSource extends CalendarDataSource {
   AppointmentDataSource(List<AppointmentModel> source) {
 
     final now = DateTime.now().toUtc();
@@ -1402,7 +1402,45 @@ class AppointmentDataSource extends CalendarDataSource {
             : _fromHex(e.serviceColor),
       );
     }).toList();
+  }*/
+
+
+class AppointmentDataSource extends CalendarDataSource {
+  AppointmentDataSource(List<AppointmentModel> source) {
+
+    final now = DateTime.now().toUtc();
+
+    appointments = source
+        .where((e) => e.status != 'cancelled') // ✅ escludi i cancellati
+        .map((e) {
+
+      debugPrint("========== MAP APPOINTMENT ==========");
+      debugPrint("DB START     => ${e.startTime}");
+      debugPrint("IS UTC       => ${e.startTime.isUtc}");
+      debugPrint("LOCAL VIEW   => ${e.startTime.toLocal()}");
+      debugPrint("UTC VIEW     => ${e.startTime.toUtc()}");
+      debugPrint("====================================");
+
+      final isPast = e.endTime.isBefore(now);
+
+      return Appointment(
+        id: e.id,
+
+        // risolta anomalia GUEST
+        startTime: e.startTime.toLocal(),
+        endTime: e.endTime.toLocal(),
+
+        subject: '👤 ${e.customerName} | 💆 ${e.serviceName}',
+
+        color: isPast
+            ? _fromHex(e.serviceColor).withOpacity(0.4)
+            : _fromHex(e.serviceColor),
+      );
+    }).toList();
   }
+
+
+
 
   Color _fromHex(String? hex) {
     if (hex == null || hex.isEmpty) {
@@ -1419,37 +1457,3 @@ class AppointmentDataSource extends CalendarDataSource {
     return Color(int.parse(buffer.toString(), radix: 16));
   }
 }
-
-
-/*bool _isSunday(DateTime date) {
-  return date.weekday == DateTime.sunday;
-}
-
-bool _isLunchBreak(DateTime date) {
-  final minutes = date.hour * 60 + date.minute;
-
-  return minutes >= (13 * 60) &&
-      minutes < (14 * 60);
-}
-
-bool _isPastSlot(DateTime date) {
-
-  final now = DateTime.now();
-
-  return date.isBefore(
-    DateTime(
-      now.year,
-      now.month,
-      now.day,
-      now.hour,
-      now.minute,
-    ),
-  );
-}
-
-bool _isBlockedSlot(DateTime date) {
-  return
-    _isPastSlot(date) ||
-        _isSunday(date) ||
-        _isLunchBreak(date);
-}*/

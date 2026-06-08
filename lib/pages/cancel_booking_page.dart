@@ -48,7 +48,7 @@ class _CancelBookingPageState extends State<CancelBookingPage> {
     }
   }
 
-  Future<void> cancelAppointment() async {
+  /*Future<void> cancelAppointment() async {
     setState(() => isLoading = true);
     try {
       await supabase
@@ -69,7 +69,36 @@ class _CancelBookingPageState extends State<CancelBookingPage> {
     } finally {
       if (mounted) setState(() => isLoading = false);
     }
+  }*/
+
+
+  Future<void> cancelAppointment() async {
+    setState(() => isLoading = true);
+    try {
+      final response = await supabase
+          .from('appointments')
+          .update({'status': 'cancelled'})
+          .eq('id', widget.appointmentId)
+          .select(); // ✅ aggiungi .select() per forzare la risposta
+
+      debugPrint("CANCEL RESPONSE => $response");
+
+      if (!mounted) return;
+      setState(() => isCancelled = true);
+    } catch (e) {
+      debugPrint("CANCEL ERROR => $e");
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Errore: $e"),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } finally {
+      if (mounted) setState(() => isLoading = false);
+    }
   }
+
 
   @override
   Widget build(BuildContext context) {

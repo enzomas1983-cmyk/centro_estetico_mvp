@@ -47,65 +47,7 @@ class _CancelBookingPageState extends State<CancelBookingPage> {
       if (mounted) setState(() => isLoading = false);
     }
   }
-
-  /*Future<void> cancelAppointment() async {
-    setState(() => isLoading = true);
-    try {
-      await supabase
-          .from('appointments')
-          .update({'status': 'cancelled'})
-          .eq('id', widget.appointmentId);
-
-      if (!mounted) return;
-      setState(() => isCancelled = true);
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("Errore: $e"),
-          backgroundColor: Colors.red,
-        ),
-      );
-    } finally {
-      if (mounted) setState(() => isLoading = false);
-    }
-  }*/
-
-
-  /*Future<void> cancelAppointment() async {
-    setState(() => isLoading = true);
-    try {
-
-      // 🔍 DEBUG: verifica sessione al momento della cancellazione
-      final session = supabase.auth.currentSession;
-      final user = supabase.auth.currentUser;
-      debugPrint("CANCEL - SESSION => $session");
-      debugPrint("CANCEL - USER => $user");
-
-      final response = await supabase
-          .from('appointments')
-          .update({'status': 'cancelled'})
-          .eq('id', widget.appointmentId)
-          .select(); // ✅ aggiungi .select() per forzare la risposta
-
-      debugPrint("CANCEL RESPONSE => $response");
-
-      if (!mounted) return;
-      setState(() => isCancelled = true);
-    } catch (e) {
-      debugPrint("CANCEL ERROR => $e");
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("Errore: $e"),
-          backgroundColor: Colors.red,
-        ),
-      );
-    } finally {
-      if (mounted) setState(() => isLoading = false);
-    }
-  }*/
-
+  
 
   Future<void> cancelAppointment() async {
     setState(() => isLoading = true);
@@ -115,19 +57,28 @@ class _CancelBookingPageState extends State<CancelBookingPage> {
         body: {'appointment_id': widget.appointmentId},
       );
 
+      debugPrint("CANCEL RESPONSE => ${response.data}");
+
       final data = response.data;
-      debugPrint("CANCEL RESPONSE => $data");
 
-      if (data['error'] == 'already_cancelled') {
-        if (!mounted) return;
-        setState(() => isAlreadyCancelled = true);
-        return;
+      if (data is Map) {
+        if (data['error'] == 'already_cancelled') {
+          if (!mounted) return;
+          setState(() => isAlreadyCancelled = true);
+          return;
+        }
+        if (data['success'] == true) {
+          if (!mounted) return;
+          setState(() => isCancelled = true);
+          return;
+        }
       }
 
-      if (data['success'] == true) {
-        if (!mounted) return;
-        setState(() => isCancelled = true);
-      }
+      // fallback errore generico
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Errore nella cancellazione"), backgroundColor: Colors.red),
+      );
 
     } catch (e) {
       debugPrint("CANCEL ERROR => $e");

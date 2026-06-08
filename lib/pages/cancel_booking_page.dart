@@ -75,6 +75,13 @@ class _CancelBookingPageState extends State<CancelBookingPage> {
   Future<void> cancelAppointment() async {
     setState(() => isLoading = true);
     try {
+
+      // 🔍 DEBUG: verifica sessione al momento della cancellazione
+      final session = supabase.auth.currentSession;
+      final user = supabase.auth.currentUser;
+      debugPrint("CANCEL - SESSION => $session");
+      debugPrint("CANCEL - USER => $user");
+
       final response = await supabase
           .from('appointments')
           .update({'status': 'cancelled'})

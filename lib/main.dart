@@ -7,7 +7,6 @@ import 'providers/auth_provider.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:flutter/foundation.dart';
 import 'core/app_router.dart';
-//import 'pages/public_booking_page.dart' show PublicBookingPage;
 /// commentato per eseguire su APP ///
 //import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 
@@ -16,9 +15,6 @@ if (dart.library.html) 'url_strategy_web.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
-  //// commentato per eseguire su APP ////
-  //setUrlStrategy(PathUrlStrategy());
 
   if (kIsWeb) {
     //setUrlStrategy(PathUrlStrategy());
@@ -42,9 +38,6 @@ Future<void> main() async {
 
   final user = Supabase.instance.client.auth.currentUser;
   debugPrint("USER INIT => $user");
-
-  // Forza inclusione nel build
-  // assert(PublicBookingPage != null);
 
   runApp(const MyApp());
 }

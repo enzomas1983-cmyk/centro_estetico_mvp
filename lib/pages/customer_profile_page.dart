@@ -243,9 +243,14 @@ class _CustomerProfilePageState extends State<CustomerProfilePage> {
                 return ListTile(
                   leading: const Icon(Icons.calendar_today),
                   title: Text(a['services']?['name'] ?? 'Servizio'),
-                  subtitle: Text(
+                  /*subtitle: Text(
                     "${date.day}/${date.month}/${date.year} - ${date.hour}:00",
+                  ),*/
+
+                  subtitle: Text(
+                    "${date.day}/${date.month}/${date.year} - ${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}",
                   ),
+
                 );
               },
             ),

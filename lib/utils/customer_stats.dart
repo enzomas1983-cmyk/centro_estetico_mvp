@@ -19,17 +19,3 @@ class CustomerStats {
     }).length;
   }
 }
-
-
-/*int calculateFrequency(List appointments) {
-  return appointments.length;
-}
-
-int calculateMonthlyFrequency(List appointments) {
-  final now = DateTime.now();
-
-  return appointments.where((a) {
-    final date = DateTime.parse(a['start_time']);
-    return date.month == now.month && date.year == now.year;
-  }).length;
-}*/

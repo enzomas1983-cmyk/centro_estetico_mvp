@@ -63,16 +63,6 @@ class _BookingPageState extends State<BookingPage> {
     }
   }
 
-  /*Future<void> loadCustomers() async {
-    final data = await supabase.from('customers').select();
-    if (!mounted) return;
-    setState(() {
-      customers.clear();
-      customers.addAll(List<Map<String, dynamic>>.from(data));
-    });
-  }*/
-
-
   Future<void> loadCustomerHistory(String customerId) async {
     final data = await supabase
         .from('appointments')
@@ -87,37 +77,6 @@ class _BookingPageState extends State<BookingPage> {
   }
 
   /// 🚨 BLOCCO SOVRAPPOSIZIONI INTELLIGENTE
-  /*Future<bool> isSlotBusy(
-      DateTime newStart,
-      DateTime newEnd,
-      String businessId, {
-        String? excludeId,
-      }) async {
-
-    final data = await supabase
-        .from('appointments')
-        .select('id, start_time, end_time, status')
-        .eq('business_id', businessId)
-        .neq('status', 'cancelled');
-
-    final appointments = List<Map<String, dynamic>>.from(data);
-
-    for (final a in appointments) {
-      if (excludeId != null && a['id'] == excludeId) continue;
-
-      final existingStart = DateTime.parse(a['start_time']);
-      final existingEnd = DateTime.parse(a['end_time']);
-
-      final overlap =
-          newStart.isBefore(existingEnd) &&
-              newEnd.isAfter(existingStart);
-
-      if (overlap) return true;
-    }
-
-    return false;
-  }*/
-
 
   // ✅ Il filtro overlap avviene sul DB, non in Dart
   Future<bool> isSlotBusy(
@@ -143,154 +102,6 @@ class _BookingPageState extends State<BookingPage> {
 
     return data.isNotEmpty;
   }
-
-  /*Future<void> saveAppointment() async {
-    if (isLoading) return;
-    if (!mounted) return;
-
-    print("SAVE APPOINTMENT STARTED");
-
-    setState(() => isLoading = true);
-
-    try {
-      // =========================
-      // CLIENTE
-      // =========================
-      if (selectedCustomerId == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("⚠️ Seleziona un cliente"),
-            backgroundColor: Colors.orange,
-          ),
-        );
-
-        setState(() => isLoading = false);
-
-        return;
-      }
-
-      // =========================
-      // SERVIZIO
-      // =========================
-      final service = await supabase
-          .from('services')
-          .select('duration_minutes, business_id')
-          .eq('id', widget.serviceId)
-          .single();
-
-      debugPrint("SERVICE LOADED => $service");
-
-      final duration = service['duration_minutes'] is int
-          ? service['duration_minutes']
-          : int.tryParse(service['duration_minutes'].toString()) ?? 30;
-
-      debugPrint("SERVICE DURATION => $duration minutes");
-
-      final businessId = service['business_id'];
-
-      // =========================
-      // TIME (CONSISTENTE)
-      // =========================
-      //final startTime = widget.selectedDateTime.toUtc();
-      //final startTime = widget.selectedDateTime;
-      //final startTime = widget.selectedDateTime.toLocal();
-
-      //final startTime = widget.selectedDateTime;
-      final startTime = widget.selectedDateTime.toLocal();
-      final endTime = startTime.add(Duration(minutes: duration),
-
-
-      );
-
-      debugPrint("START => $startTime");
-      debugPrint("END   => $endTime");
-
-      // =========================
-// VALIDAZIONE BUSINESS RULES (UNIFICATA)
-// =========================
-
-      final error = BookingRules.reason(
-        start: startTime,
-        end: endTime,
-      );
-
-      debugPrint("VALIDATION CHECK...");
-      debugPrint("RULE ERROR => $error");
-
-      if (error != null) {
-        if (!mounted) return;
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(error),
-            backgroundColor: Colors.red,
-          ),
-        );
-
-        setState(() => isLoading = false);
-        return;
-      }
-
-      // =========================
-      // OVERLAP CHECK (UNICO)
-      // =========================
-      final busy = await isSlotBusy(
-        startTime,
-        endTime,
-        businessId,
-      );
-
-      debugPrint("OVERLAP CHECK => $busy");
-
-      if (busy) {
-        if (!mounted) return;
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("❌ Questo orario si sovrappone a un altro appuntamento"),
-            backgroundColor: Colors.red,
-          ),
-        );
-
-        return;
-      }
-
-      // =========================
-      // INSERT
-      // =========================
-      await supabase.from('appointments').insert({
-        'service_id': widget.serviceId,
-        'customer_id': selectedCustomerId,
-        'business_id': businessId,
-        'start_time': startTime.toUtc().toIso8601String(),
-        'end_time': endTime.toUtc().toIso8601String(),
-        'status': 'scheduled',
-      });
-
-
-      if (!mounted) return;
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("✔ Appuntamento salvato")),
-      );
-
-      //Navigator.pop(context);
-
-      // 🔥 FIX CORRETTO
-      Navigator.pop(context, true);
-
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Errore: $e")),
-        );
-      }
-    } finally {
-      if (mounted) {
-        setState(() => isLoading = false);
-      }
-    }
-  }*/
 
   Future<void> saveAppointment() async {
     if (isLoading) return;

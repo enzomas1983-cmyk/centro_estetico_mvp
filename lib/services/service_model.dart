@@ -37,27 +37,3 @@ class ServiceModel {
     );
   }
 }
-
-
-/*class ServiceModel {
-  final String id;
-  final String name;
-  final int durationMinutes;
-  final String color;
-
-  ServiceModel({
-    required this.id,
-    required this.name,
-    required this.durationMinutes,
-    required this.color,
-  });
-
-  factory ServiceModel.fromJson(Map<String, dynamic> json) {
-    return ServiceModel(
-      id: json['id'],
-      name: json['name'] ?? '',
-      durationMinutes: json['duration_minutes'] ?? 30,
-      color: json['color'] ?? '#9E9E9E',
-    );
-  }
-}*/

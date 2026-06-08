@@ -874,47 +874,6 @@ class _CreateAppointmentPageState
                 selectedCustomer == null &&
                 !showCreateCustomerForm)
 
-              /*TextButton.icon(
-
-                icon: const Icon(Icons.add),
-
-                label:
-                const Text(
-                  "Crea nuovo cliente",
-                ),
-
-                onPressed:
-                isCreatingCustomer
-                    ? null
-                    : () async {
-
-                  setState(() {
-                    isCreatingCustomer = true;
-                  });
-
-                  final created =
-                  await createQuickCustomer(
-                    customerSearchController.text,
-                  );
-
-                  setState(() {
-
-                    selectedCustomer =
-                        created;
-
-                    showCustomerResults =
-                    false;
-
-                    isCreatingCustomer =
-                    false;
-
-                    customerSearchController
-                        .text =
-                    "${created['name']} "
-                        "${created['surname']}";
-                  });
-                },
-              ),*/
 
               TextButton.icon(
                 icon: const Icon(Icons.add),
@@ -922,120 +881,7 @@ class _CreateAppointmentPageState
                 onPressed: openCreateCustomerSheet,
               ),
 
-            /*if (showCustomerForm)
-              Container(
-                margin: const EdgeInsets.only(top: 12),
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.grey.shade300),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
 
-                    const Text(
-                      "Nuovo cliente",
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-
-                    const SizedBox(height: 10),
-
-                    TextField(
-                      controller: newNameController,
-                      decoration: const InputDecoration(labelText: "Nome *"),
-                    ),
-
-                    TextField(
-                      controller: newSurnameController,
-                      decoration: const InputDecoration(labelText: "Cognome *"),
-                    ),
-
-                    TextField(
-                      controller: newEmailController,
-                      decoration: const InputDecoration(labelText: "Email *"),
-                    ),
-
-                    TextField(
-                      controller: newPhoneController,
-                      decoration: const InputDecoration(labelText: "Telefono"),
-                    ),
-
-                    TextField(
-                      controller: newNotesController,
-                      decoration: const InputDecoration(labelText: "Note"),
-                      maxLines: 2,
-                    ),
-
-                    const SizedBox(height: 12),
-
-                    ElevatedButton(
-                      onPressed: () async {
-
-                        // 🔴 VALIDAZIONE
-                        if (newNameController.text.trim().isEmpty ||
-                            newSurnameController.text.trim().isEmpty ||
-                            newEmailController.text.trim().isEmpty) {
-
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text("Nome, Cognome e Email obbligatori"),
-                              backgroundColor: Colors.red,
-                            ),
-                          );
-                          return;
-                        }
-
-                        try {
-                          final created = await supabase
-                              .from('customers')
-                              .insert({
-                            'name': newNameController.text.trim(),
-                            'surname': newSurnameController.text.trim(),
-                            'email': newEmailController.text.trim(),
-                            'phone': newPhoneController.text.trim(),
-                            'notes': newNotesController.text.trim(),
-                          })
-                              .select()
-                              .single();
-
-                          setState(() {
-                            selectedCustomer = created;
-                            showCustomerForm = false;
-
-                            customerSearchController.text =
-                            "${created['name']} ${created['surname']}";
-                          });
-
-                          // 🔥 pulizia campi
-                          newNameController.clear();
-                          newSurnameController.clear();
-                          newEmailController.clear();
-                          newPhoneController.clear();
-                          newNotesController.clear();
-
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text("Cliente creato con successo"),
-                              backgroundColor: Colors.green,
-                            ),
-                          );
-
-                        } catch (e) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text("Errore: $e"),
-                              backgroundColor: Colors.red,
-                            ),
-                          );
-                        }
-                      },
-                      child: const Text("Salva cliente"),
-                    ),
-                  ],
-                ),
-              ),*/
 
             const SizedBox(height: 20),
 
@@ -1043,19 +889,6 @@ class _CreateAppointmentPageState
             // HEADER
             // ======================================
 
-            /*Text(
-
-              "Stai prenotando un appuntamento per il "
-                  "${DateFormat('dd MMMM yyyy', 'it_IT').format(widget.selectedDateTime)} "
-                  "alle ${DateFormat('HH:mm').format(widget.selectedDateTime)}",
-
-              textAlign: TextAlign.center,
-
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-              ),
-            ),*/
 
             const SizedBox(height: 10),
 

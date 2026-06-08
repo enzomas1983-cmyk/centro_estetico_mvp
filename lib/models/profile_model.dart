@@ -1,29 +1,3 @@
-/*class ProfileModel {
-  final String id;
-  final String email;
-  final String role;
-  final String businessId;
-
-  ProfileModel({
-    required this.id,
-    required this.email,
-    required this.role,
-    required this.businessId,
-  });
-
-  factory ProfileModel.fromJson(Map<String, dynamic> json) {
-    return ProfileModel(
-      id: json['id'] ?? '',
-      email: json['email'] ?? '',
-      role: json['role'] ?? '',
-      businessId: json['business_id'] ?? '',
-    );
-  }
-
-  bool get isAdmin => role == 'admin';
-}*/
-
-
 class ProfileModel {
   final String id;
   final String email;

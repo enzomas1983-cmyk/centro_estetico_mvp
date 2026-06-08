@@ -84,20 +84,6 @@ class _ProCalendarPageState
     super.dispose();
   }
 
-  /*@override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-
-    final profile =
-        context.watch<AuthProvider>().profile;
-
-    if (profile != null &&
-        _appointments.isEmpty) {
-
-      loadAppointments();
-    }
-  }*/
-
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -110,12 +96,6 @@ class _ProCalendarPageState
       loadAppointments();
     }
   }
-
-  /*@override
-  void dispose() {
-    _channel?.unsubscribe();
-    super.dispose();
-  }*/
 
 
   // ✅ Versione corretta di _getSpecialRegions()
@@ -188,113 +168,7 @@ class _ProCalendarPageState
   }
 
 
-  /*List<TimeRegion> _getSpecialRegions() {
 
-    final List<TimeRegion> regions = [];
-
-    final now = DateTime.now();
-
-    // prossimi 30 giorni
-    for (int i = 0; i < 365; i++) {
-
-      final day = now.add(Duration(days: i));
-
-      final today = DateTime.now();
-
-      final isToday =
-              day.year == today.year &&
-              day.month == today.month &&
-              day.day == today.day;
-
-      if (isToday) {
-
-        regions.add(
-          TimeRegion(
-            startTime: DateTime(
-              day.year,
-              day.month,
-              day.day,
-              0,
-              0,
-            ),
-
-            endTime: now, // ok: blocca fino ad adesso
-            color: Colors.grey.withOpacity(0.25),
-            enablePointerInteraction: false,
-            text: 'PASSATO',
-          ),
-        );
-      }
-
-
-      //final day = now.add(Duration(days: i));
-
-      // =========================
-      // DOMENICA CHIUSO
-      // =========================
-
-      if (day.weekday == DateTime.sunday) {
-
-        regions.add(
-          TimeRegion(
-            startTime: DateTime(
-              day.year,
-              day.month,
-              day.day,
-              0,
-              0,
-            ),
-
-            endTime: DateTime(
-              day.year,
-              day.month,
-              day.day,
-              23,
-              59,
-            ),
-
-            color: Colors.yellow.withOpacity(0.3),
-
-            enablePointerInteraction: false,
-
-            text: 'CHIUSO',
-          ),
-        );
-      }
-
-      // =========================
-      // PAUSA PRANZO
-      // =========================
-
-      final isSunday = day.weekday == DateTime.sunday;
-
-      if (!isSunday) {
-        regions.add(
-          TimeRegion(
-            startTime: DateTime(
-              day.year,
-              day.month,
-              day.day,
-              13,
-              0,
-            ),
-            endTime: DateTime(
-              day.year,
-              day.month,
-              day.day,
-              14,
-              0,
-            ),
-            color: Colors.grey.withOpacity(0.3),
-            enablePointerInteraction: false,
-            text: 'Pausa pranzo',
-          ),
-        );
-      }
-    }
-
-    return regions;
-  }*/
 
   List<DateTime> _getBlockedDates() {
     final now = DateTime.now().toUtc();
@@ -627,56 +501,6 @@ class _ProCalendarPageState
 
         actions: [
 
-          // =================================================
-          // QR
-          // =================================================
-
-          /*IconButton(
-
-            icon: const Icon(Icons.qr_code),
-
-            tooltip: "QR Prenotazioni",
-
-            onPressed: () {
-
-              final profile =
-                  context.read<AuthProvider>()
-                      .profile;
-
-              if (profile == null) {
-
-                ScaffoldMessenger.of(context)
-                    .showSnackBar(
-                  const SnackBar(
-                    content: Text(
-                      "Profilo non caricato",
-                    ),
-                  ),
-                );
-
-                return;
-              }
-
-              Navigator.push(
-
-                context,
-
-                MaterialPageRoute(
-
-
-
-                  builder: (_) =>
-                      BusinessQrPage(
-                        businessId:
-                        profile.businessId,
-                      ),
-
-
-                ),
-              );
-            },
-          ),*/
-
           IconButton(
             icon: const Icon(Icons.qr_code),
             tooltip: "QR Prenotazioni",
@@ -956,10 +780,6 @@ class _ProCalendarPageState
 
                 final date = details.date;
 
-                /*final isSunday = _isSunday(date);
-                final isLunch = _isLunchBreak(date);
-                final isPast = _isPastSlot(date);*/
-
                 // ✅ Dopo
                 final isSunday = BookingRules.isSunday(date);
                 final isLunch = BookingRules.isLunchBreak(date);
@@ -1082,9 +902,6 @@ class _ProCalendarPageState
                     return;
                   }
 
-
-                  //final localSelectedDate = selectedDate!;
-
                   final date = details.date;
 
                   if (date == null) return;
@@ -1102,20 +919,6 @@ class _ProCalendarPageState
                   // =========================
                   // SLOT BLOCCATI
                   // =========================
-
-
-
-
-                  /*final result = await Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => CreateAppointmentPage(
-                        //selectedDateTime: localSelectedDate,
-
-                        selectedDateTime: normalizedDateTime,
-                      ),
-                    ),
-                  );*/
 
 
                   final profile = context.read<AuthProvider>().profile;
@@ -1368,42 +1171,6 @@ class _ProCalendarPageState
 // ===========================================================
 // DATA SOURCE
 // ===========================================================
-
-/*class AppointmentDataSource extends CalendarDataSource {
-  AppointmentDataSource(List<AppointmentModel> source) {
-
-    final now = DateTime.now().toUtc();
-
-    appointments = source.map((e) {
-
-      debugPrint("========== MAP APPOINTMENT ==========");
-      debugPrint("DB START     => ${e.startTime}");
-      debugPrint("IS UTC       => ${e.startTime.isUtc}");
-      debugPrint("LOCAL VIEW   => ${e.startTime.toLocal()}");
-      debugPrint("UTC VIEW     => ${e.startTime.toUtc()}");
-      debugPrint("====================================");
-
-      final isPast = e.endTime.isBefore(now);
-
-      return Appointment(
-        id: e.id,
-
-        /*startTime: e.startTime.toUtc(),
-        endTime: e.endTime.toUtc(),*/
-
-        // risolta anomalia GUEST
-        startTime: e.startTime.toLocal(),
-        endTime: e.endTime.toLocal(),
-
-        subject: '👤 ${e.customerName} | 💆 ${e.serviceName}',
-
-        color: isPast
-            ? _fromHex(e.serviceColor).withOpacity(0.4)
-            : _fromHex(e.serviceColor),
-      );
-    }).toList();
-  }*/
-
 
 class AppointmentDataSource extends CalendarDataSource {
   AppointmentDataSource(List<AppointmentModel> source) {

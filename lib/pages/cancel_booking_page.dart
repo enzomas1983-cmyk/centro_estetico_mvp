@@ -72,7 +72,7 @@ class _CancelBookingPageState extends State<CancelBookingPage> {
   }*/
 
 
-  Future<void> cancelAppointment() async {
+  /*Future<void> cancelAppointment() async {
     setState(() => isLoading = true);
     try {
 
@@ -100,6 +100,40 @@ class _CancelBookingPageState extends State<CancelBookingPage> {
           content: Text("Errore: $e"),
           backgroundColor: Colors.red,
         ),
+      );
+    } finally {
+      if (mounted) setState(() => isLoading = false);
+    }
+  }*/
+
+
+  Future<void> cancelAppointment() async {
+    setState(() => isLoading = true);
+    try {
+      final response = await supabase.functions.invoke(
+        'cancel-appointment',
+        body: {'appointment_id': widget.appointmentId},
+      );
+
+      final data = response.data;
+      debugPrint("CANCEL RESPONSE => $data");
+
+      if (data['error'] == 'already_cancelled') {
+        if (!mounted) return;
+        setState(() => isAlreadyCancelled = true);
+        return;
+      }
+
+      if (data['success'] == true) {
+        if (!mounted) return;
+        setState(() => isCancelled = true);
+      }
+
+    } catch (e) {
+      debugPrint("CANCEL ERROR => $e");
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Errore: $e"), backgroundColor: Colors.red),
       );
     } finally {
       if (mounted) setState(() => isLoading = false);

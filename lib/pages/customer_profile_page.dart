@@ -238,7 +238,7 @@ class _CustomerProfilePageState extends State<CustomerProfilePage> {
               itemCount: appointments.length,
               itemBuilder: (context, index) {
                 final a = appointments[index];
-                final date = DateTime.parse(a['start_time']);
+                final date = DateTime.parse(a['start_time']).toLocal();
 
                 return ListTile(
                   leading: const Icon(Icons.calendar_today),

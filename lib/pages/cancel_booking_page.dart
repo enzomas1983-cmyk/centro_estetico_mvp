@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'dart:convert';
 
 class CancelBookingPage extends StatefulWidget {
   final String appointmentId;
@@ -59,6 +60,48 @@ class _CancelBookingPageState extends State<CancelBookingPage> {
 
       debugPrint("CANCEL RESPONSE => ${response.data}");
 
+      // ✅ gestisci sia Map che String
+      final raw = response.data;
+      final data = raw is String ? jsonDecode(raw) : raw as Map;
+
+      if (data['error'] == 'already_cancelled') {
+        if (!mounted) return;
+        setState(() => isAlreadyCancelled = true);
+        return;
+      }
+
+      if (data['success'] == true) {
+        if (!mounted) return;
+        setState(() => isCancelled = true);
+        return;
+      }
+
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Errore nella cancellazione"), backgroundColor: Colors.red),
+      );
+
+    } catch (e) {
+      debugPrint("CANCEL ERROR => $e");
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Errore: $e"), backgroundColor: Colors.red),
+      );
+    } finally {
+      if (mounted) setState(() => isLoading = false);
+    }
+  }
+
+  /*Future<void> cancelAppointment() async {
+    setState(() => isLoading = true);
+    try {
+      final response = await supabase.functions.invoke(
+        'cancel-appointment',
+        body: {'appointment_id': widget.appointmentId},
+      );
+
+      debugPrint("CANCEL RESPONSE => ${response.data}");
+
       final data = response.data;
 
       if (data is Map) {
@@ -89,7 +132,7 @@ class _CancelBookingPageState extends State<CancelBookingPage> {
     } finally {
       if (mounted) setState(() => isLoading = false);
     }
-  }
+  }*/
 
 
   @override

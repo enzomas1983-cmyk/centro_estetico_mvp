@@ -56,32 +56,6 @@ class _ProCalendarPageState
   // INIT
   // =========================================================
 
-  /*@override
-  void initState() {
-    super.initState();
-
-    _calendarDataSource =
-        AppointmentDataSource(_appointments);
-
-    _calendarController.view = _view;
-    _calendarController.displayDate = _focusedDay;
-
-    subscribeRealtime();
-  }*/
-
-  /*@override
-  void initState() {
-    super.initState();
-
-    // ✅ Calcolata una volta, mai più rieseguita
-    _specialRegions = _getSpecialRegions();
-
-    _calendarDataSource = AppointmentDataSource(_appointments);
-    _calendarController.view = _view;
-    _calendarController.displayDate = _focusedDay;
-    subscribeRealtime();
-  }*/
-
   @override
   void initState() {
     super.initState();
@@ -410,22 +384,6 @@ class _ProCalendarPageState
   }
 
 // ✅ FIX 3 — Realtime riusa loadAppointments() invece di duplicare la query
-  /*void subscribeRealtime() {
-    _channel = supabase
-        .channel('appointments-realtime')
-        .onPostgresChanges(
-      event: PostgresChangeEvent.all,
-      schema: 'public',
-      table: 'appointments',
-      callback: (payload) async {
-        if (!mounted) return;
-        // Nessuna query duplicata, nessuna race condition
-        await loadAppointments();
-      },
-    )
-        .subscribe();
-  }*/
-
 
   void subscribeRealtime() {
     final businessId = context.read<AuthProvider>().profile?.businessId;
@@ -444,80 +402,6 @@ class _ProCalendarPageState
     )
         .subscribe();
   }
-
-  /*Future<void> loadAppointments() async {
-    final profile = context.read<AuthProvider>().profile;
-
-    final businessId = profile?.businessId;
-
-    if (businessId == null) {
-      debugPrint("Business ID nullo");
-      return;
-    }
-
-    final String? currentBusinessId =
-        context.read<AuthProvider>().profile?.businessId;
-
-    if (currentBusinessId == null) {
-      debugPrint("❌ BUSINESS ID NULL");
-      return;
-    }
-
-    final data = await supabase
-        .from('appointments')
-        .select('*, customers(name), services(name, color, duration_minutes)')
-        .eq('business_id', currentBusinessId)
-        .order('start_time');
-
-    final result = (data as List)
-        .map((e) => AppointmentModel.fromJson(e))
-        .toList();
-
-    debugPrint("APPOINTMENTS LOADED => ${result.length}");
-
-    if (!mounted) return;
-
-    setState(() {
-      _appointments = result;
-      _calendarDataSource = AppointmentDataSource(result);
-    });
-  }
-
-  // =========================================================
-  // REALTIME
-  // =========================================================
-
-  void subscribeRealtime() {
-    _channel = supabase
-        .channel('appointments-realtime')
-        .onPostgresChanges(
-      event: PostgresChangeEvent.all,
-      schema: 'public',
-      table: 'appointments',
-      callback: (payload) async {
-        if (!mounted) return;
-
-        final data = await supabase
-            .from('appointments')
-            .select('*, customers(name), services(name, color, duration_minutes)')
-            .eq('business_id', context.read<AuthProvider>().profile!.businessId!)
-            .order('start_time');
-
-        final result = (data as List)
-            .map((e) => AppointmentModel.fromJson(e))
-            .toList();
-
-        setState(() {
-          _appointments = result;
-          _calendarDataSource = AppointmentDataSource(result);
-        });
-      },
-    )
-        .subscribe();
-  }*/
-
-
-
 
   // =========================================================
   // DELETE

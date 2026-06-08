@@ -47,7 +47,7 @@ class _CancelBookingPageState extends State<CancelBookingPage> {
       if (mounted) setState(() => isLoading = false);
     }
   }
-  
+
 
   Future<void> cancelAppointment() async {
     setState(() => isLoading = true);

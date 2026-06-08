@@ -6,6 +6,7 @@ import '../pages/guest_booking_page.dart';
 
 class AppRouter {
   static Route<dynamic> generateRoute(RouteSettings settings) {
+    debugPrint("ROUTE NAME => ${settings.name}"); // ✅ aggiungi qui
     final uri = Uri.parse(settings.name ?? '/');
 
     // 🔵 BOOKING PUBBLICO

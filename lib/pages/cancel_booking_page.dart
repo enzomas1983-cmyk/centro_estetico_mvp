@@ -29,6 +29,9 @@ class _CancelBookingPageState extends State<CancelBookingPage> {
   }
 
   Future<void> loadAppointment() async {
+
+    if (widget.appointmentId.isEmpty) return; // ✅ aggiungi questa riga
+    
     setState(() => isLoading = true);
     try {
       final data = await supabase

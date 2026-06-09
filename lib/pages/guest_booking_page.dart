@@ -566,7 +566,6 @@ class _GuestBookingPageState extends State<GuestBookingPage> {
   @override
   void initState() {
     super.initState();
-    phoneController.text = '+39 ';
     if (widget.businessId.isEmpty) return;
     loadServices();
   }
@@ -827,6 +826,93 @@ class _GuestBookingPageState extends State<GuestBookingPage> {
     );
   }
 
+  void _showServicePicker() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (_) => Container(
+        decoration: const BoxDecoration(
+          color: _cardBg,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        padding: const EdgeInsets.fromLTRB(20, 12, 20, 32),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // handle bar
+            Container(
+              width: 40, height: 4,
+              decoration: BoxDecoration(
+                color: _cardBorder,
+                borderRadius: BorderRadius.circular(99),
+              ),
+            ),
+            const SizedBox(height: 20),
+            const Text("Seleziona servizio",
+                style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                    color: _textPrimary,
+                    letterSpacing: -0.2)),
+            const SizedBox(height: 16),
+            ...services.map((s) {
+              final id       = s['id'].toString();
+              final name     = s['name'].toString();
+              final duration = s['duration_minutes']?.toString() ?? '';
+              final isSelected = selectedServiceId == id;
+              return GestureDetector(
+                onTap: () async {
+                  Navigator.pop(context);
+                  setState(() => selectedServiceId = id);
+                  await loadAvailableSlots();
+                },
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 150),
+                  margin: const EdgeInsets.only(bottom: 8),
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 16, vertical: 14),
+                  decoration: BoxDecoration(
+                    color: isSelected ? _blueLight : const Color(0xFFF8F9FB),
+                    borderRadius: _borderRadiusMd,
+                    border: Border.all(
+                        color: isSelected ? _blue : _cardBorder,
+                        width: isSelected ? 1.5 : 1),
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(name,
+                                style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                    color: isSelected ? _blue : _textPrimary)),
+                            if (duration.isNotEmpty) ...[
+                              const SizedBox(height: 2),
+                              Text("$duration minuti",
+                                  style: const TextStyle(
+                                      fontSize: 12, color: _textMuted)),
+                            ],
+                          ],
+                        ),
+                      ),
+                      if (isSelected)
+                        const Icon(Icons.check_circle,
+                            color: _blue, size: 18),
+                    ],
+                  ),
+                ),
+              );
+            }).toList(),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _sectionLabel(String text) => Padding(
     padding: const EdgeInsets.only(bottom: 6),
     child: Text(text,
@@ -957,41 +1043,36 @@ class _GuestBookingPageState extends State<GuestBookingPage> {
 
                   // ── SERVIZIO ─────────────────────────────
                   _sectionLabel("SERVIZIO"),
-                  Container(
-                    decoration: BoxDecoration(
-                      color: _cardBg,
-                      borderRadius: _borderRadius,
-                      border: Border.all(color: _cardBorder),
-                    ),
-                    padding:
-                    const EdgeInsets.symmetric(horizontal: 14),
-                    child: DropdownButtonHideUnderline(
-                      child: DropdownButtonFormField<String>(
-                        value: selectedServiceId,
-                        isExpanded: true,
-                        decoration: const InputDecoration(
-                          border: InputBorder.none,
-                          contentPadding: EdgeInsets.zero,
-                        ),
-                        hint: const Text("Seleziona servizio",
-                            style: TextStyle(
-                                color: _textHint, fontSize: 14)),
-                        style: const TextStyle(
-                            color: _textPrimary,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500),
-                        icon: const Icon(Icons.keyboard_arrow_down,
-                            color: _textHint),
-                        items: services
-                            .map((s) => DropdownMenuItem(
-                          value: s['id'].toString(),
-                          child: Text(s['name']),
-                        ))
-                            .toList(),
-                        onChanged: (v) async {
-                          setState(() => selectedServiceId = v);
-                          await loadAvailableSlots();
-                        },
+                  GestureDetector(
+                    onTap: () => _showServicePicker(),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 15),
+                      decoration: BoxDecoration(
+                        color: _cardBg,
+                        borderRadius: _borderRadius,
+                        border: Border.all(color: _cardBorder),
+                      ),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              selectedServiceId == null
+                                  ? "Seleziona servizio"
+                                  : services.firstWhere((s) =>
+                              s['id'].toString() ==
+                                  selectedServiceId)['name'],
+                              style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                  color: selectedServiceId == null
+                                      ? _textHint
+                                      : _textPrimary),
+                            ),
+                          ),
+                          const Icon(Icons.keyboard_arrow_down,
+                              color: _textHint, size: 20),
+                        ],
                       ),
                     ),
                   ),
@@ -1159,17 +1240,25 @@ class _GuestBookingPageState extends State<GuestBookingPage> {
                   _sectionLabel("I TUOI DATI"),
                   TextFormField(
                     controller: nameController,
-                    validator: (v) => v == null || v.trim().isEmpty
-                        ? "Campo obbligatorio"
-                        : null,
+                    validator: (v) {
+                      if (v == null || v.trim().isEmpty) return "Campo obbligatorio";
+                      if (v.trim().length < 2) return "Minimo 2 caratteri";
+                      if (!RegExp(r"^[a-zA-ZàáâäãåèéêëìíîïòóôöùúûüÀÁÂÄÃÅÈÉÊËÌÍÎÏÒÓÔÖÙÚÛÜ '\-]+\$").hasMatch(v.trim()))
+                        return "Solo lettere e spazi";
+                      return null;
+                    },
                     decoration: _inputDecoration("Nome *", "NOME"),
                   ),
                   const SizedBox(height: 8),
                   TextFormField(
                     controller: surnameController,
-                    validator: (v) => v == null || v.trim().isEmpty
-                        ? "Campo obbligatorio"
-                        : null,
+                    validator: (v) {
+                      if (v == null || v.trim().isEmpty) return "Campo obbligatorio";
+                      if (v.trim().length < 2) return "Minimo 2 caratteri";
+                      if (!RegExp(r"^[a-zA-ZàáâäãåèéêëìíîïòóôöùúûüÀÁÂÄÃÅÈÉÊËÌÍÎÏÒÓÔÖÙÚÛÜ '\-]+\$").hasMatch(v.trim()))
+                        return "Solo lettere e spazi";
+                      return null;
+                    },
                     decoration:
                     _inputDecoration("Cognome *", "COGNOME"),
                   ),
@@ -1177,27 +1266,39 @@ class _GuestBookingPageState extends State<GuestBookingPage> {
                   TextFormField(
                     controller: phoneController,
                     keyboardType: TextInputType.phone,
-                    validator: (v) => v == null || v.trim().isEmpty
-                        ? "Campo obbligatorio"
-                        : null,
+                    validator: (v) {
+                      if (v == null || v.trim().isEmpty) return "Campo obbligatorio";
+                      final digits = v.trim().replaceAll(RegExp(r'\s'), '');
+                      if (!RegExp(r'^[0-9]+\$').hasMatch(digits)) return "Solo numeri";
+                      if (digits.length != 10) return "Inserisci 10 cifre (es. 3451234567)";
+                      return null;
+                    },
                     decoration: _inputDecoration("Telefono *", "TEL").copyWith(
-                      prefixIcon: const Padding(
-                        padding: EdgeInsets.only(left: 14, right: 8),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text("🇮🇹", style: TextStyle(fontSize: 18)),
-                            SizedBox(width: 6),
-                            Text("+39",
-                                style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w500,
-                                    color: Color(0xFF1C2130))),
-                          ],
+                      prefixIcon: IntrinsicWidth(
+                        child: Padding(
+                          padding: const EdgeInsets.only(left: 14, right: 10),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: const [
+                              Text("🇮🇹", style: TextStyle(fontSize: 18)),
+                              SizedBox(width: 6),
+                              Text("+39",
+                                  style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w600,
+                                      color: Color(0xFF1C2130))),
+                              SizedBox(width: 10),
+                              SizedBox(
+                                height: 20,
+                                child: VerticalDivider(
+                                    color: Color(0xFFDDE2EA), thickness: 1),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                      contentPadding: EdgeInsets.only(
-                          left: 0, right: 16, top: 15, bottom: 15),
+                      contentPadding: const EdgeInsets.only(
+                          left: 8, right: 16, top: 15, bottom: 15),
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -1428,6 +1529,7 @@ class _Interval {
   final DateTime end;
   const _Interval(this.start, this.end);
 }
+
 
 
 

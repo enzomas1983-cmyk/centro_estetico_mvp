@@ -37,10 +37,17 @@ class _GuestBookingPageState extends State<GuestBookingPage> {
     super.dispose();
   }
 
-  @override
+  /*@override
   void initState() {
     super.initState();
     // build: 20260608
+    loadServices();
+  }*/
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.businessId.isEmpty) return; // ✅ evita query con id vuoto
     loadServices();
   }
 

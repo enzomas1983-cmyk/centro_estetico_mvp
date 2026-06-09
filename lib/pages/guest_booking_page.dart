@@ -503,7 +503,6 @@ class _Interval {
   const _Interval(this.start, this.end);
 }*/
 
-
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../core/booking_rules.dart';
@@ -538,13 +537,13 @@ class _GuestBookingPageState extends State<GuestBookingPage> {
   static const _maxWidth = 420.0;
   static const _radius = Radius.circular(14.0);
   static const _borderRadius = BorderRadius.all(_radius);
-  static const _cardColor = Color(0xFFF8F7F5);
+  static const _cardColor = Color(0xFFFFFFFF);
   static const _accentColor = Color(0xFF1A1A1A);
   static const _chipSelected = Color(0xFF1A1A1A);
-  static const _chipUnselected = Color(0xFFFFFFFF);
-  static const _morningColor = Color(0xFFFFF8ED);
-  static const _afternoonColor = Color(0xFFF0F4FF);
-  static const _confirmColor = Color(0xFFEDF7F0);
+  static const _chipUnselected = Color(0xFFF5F4F1);
+  static const _morningColor = Color(0xFFFFFFFF);
+  static const _afternoonColor = Color(0xFFFFFFFF);
+  static const _confirmColor = Color(0xFFFFFFFF);
   // ───────────────────────────────────────────────────────────────
 
   @override
@@ -796,12 +795,9 @@ class _GuestBookingPageState extends State<GuestBookingPage> {
   String _formatSlot(DateTime slot) =>
       "${slot.hour.toString().padLeft(2, '0')}:${slot.minute.toString().padLeft(2, '0')}";
 
-  InputDecoration _inputDecoration(String label, {IconData? icon}) {
+  InputDecoration _inputDecoration(String label) {
     return InputDecoration(
       labelText: label,
-      prefixIcon: icon != null
-          ? Icon(icon, size: 18, color: Colors.black38)
-          : null,
       filled: true,
       fillColor: Colors.white,
       contentPadding:
@@ -863,9 +859,9 @@ class _GuestBookingPageState extends State<GuestBookingPage> {
     availableSlots.where((s) => s.hour >= 14).toList();
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF2F0EC),
+      backgroundColor: const Color(0xFFF5F4F1),
       appBar: AppBar(
-        backgroundColor: const Color(0xFFF2F0EC),
+        backgroundColor: const Color(0xFFF5F4F1),
         elevation: 0,
         title: const Text(
           "Prenota online",
@@ -937,29 +933,29 @@ class _GuestBookingPageState extends State<GuestBookingPage> {
                       padding: const EdgeInsets.symmetric(
                           vertical: 18, horizontal: 20),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFFFF0F5),
+                        color: const Color(0xFFFFFFFF),
                         borderRadius: _borderRadius,
                         border: Border.all(
-                            color: const Color(0xFFFFCDD9)),
+                            color: const Color(0xFFE0DDD8)),
                       ),
                       child: Column(
                         children: [
                           const Text("Stai prenotando per",
                               style: TextStyle(
                                   fontSize: 13,
-                                  color: Colors.black54)),
+                                  color: Color(0xFF999999))),
                           const SizedBox(height: 6),
                           Text(selectedServiceName,
                               style: const TextStyle(
                                   fontSize: 20,
                                   fontWeight: FontWeight.w700,
-                                  color: Colors.black87)),
+                                  color: Color(0xFF1A1A1A))),
                           const SizedBox(height: 4),
                           Text(
                               "Durata: $selectedServiceDuration minuti",
                               style: const TextStyle(
                                   fontSize: 13,
-                                  color: Colors.black54)),
+                                  color: Color(0xFF999999))),
                         ],
                       ),
                     ),
@@ -968,61 +964,56 @@ class _GuestBookingPageState extends State<GuestBookingPage> {
                   // ── DATA ─────────────────────────────────
                   const SizedBox(height: 20),
                   _sectionLabel("DATA"),
-                  GestureDetector(
-                    onTap: serviceSelected
-                        ? () async {
-                      final picked = await showDatePicker(
-                        context: context,
-                        firstDate: DateTime.now(),
-                        lastDate: DateTime.now()
-                            .add(const Duration(days: 365)),
-                        initialDate: selectedDate,
-                      );
-                      if (picked != null) {
-                        setState(
-                                () => selectedDate = picked);
-                        await loadAvailableSlots();
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: serviceSelected
+                          ? () async {
+                        final picked = await showDatePicker(
+                          context: context,
+                          firstDate: DateTime.now(),
+                          lastDate: DateTime.now()
+                              .add(const Duration(days: 365)),
+                          initialDate: selectedDate,
+                        );
+                        if (picked != null) {
+                          setState(() => selectedDate = picked);
+                          await loadAvailableSlots();
+                        }
                       }
-                    }
-                        : null,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 18, vertical: 16),
-                      decoration: BoxDecoration(
-                        color: serviceSelected
-                            ? Colors.white
-                            : const Color(0xFFF5F4F2),
-                        borderRadius: _borderRadius,
-                        border: Border.all(
-                            color: const Color(0xFFE0DDD8)),
+                          : null,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF1A1A1A),
+                        disabledBackgroundColor:
+                        const Color(0xFFCCCAC6),
+                        foregroundColor: Colors.white,
+                        elevation: 0,
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 15),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
+                        ),
                       ),
-                      child: Row(
-                        children: [
-                          Icon(Icons.calendar_today_outlined,
-                              size: 18,
-                              color: serviceSelected
-                                  ? Colors.black54
-                                  : Colors.black26),
-                          const SizedBox(width: 12),
-                          Text(
-                            DateFormat('dd MMMM yyyy', 'it_IT')
-                                .format(selectedDate),
-                            style: TextStyle(
-                                fontSize: 15,
-                                color: serviceSelected
-                                    ? Colors.black87
-                                    : Colors.black38),
-                          ),
-                          const Spacer(),
-                          Icon(Icons.chevron_right,
-                              size: 20,
-                              color: serviceSelected
-                                  ? Colors.black38
-                                  : Colors.black.withOpacity(0.18)),
-                        ],
+                      child: const Text(
+                        "Seleziona data",
+                        style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: 0.2),
                       ),
                     ),
                   ),
+                  if (serviceSelected) ...[
+                    const SizedBox(height: 8),
+                    Center(
+                      child: Text(
+                        DateFormat('dd MMMM yyyy', 'it_IT')
+                            .format(selectedDate),
+                        style: const TextStyle(
+                            fontSize: 13, color: Colors.black45),
+                      ),
+                    ),
+                  ],
 
                   // ── SLOT MATTINA ─────────────────────────
                   if (morningSlots.isNotEmpty) ...[
@@ -1034,7 +1025,7 @@ class _GuestBookingPageState extends State<GuestBookingPage> {
                         color: _morningColor,
                         borderRadius: _borderRadius,
                         border: Border.all(
-                            color: const Color(0xFFFFE5B0)),
+                            color: const Color(0xFFE0DDD8)),
                       ),
                       child: Column(
                         crossAxisAlignment:
@@ -1043,13 +1034,13 @@ class _GuestBookingPageState extends State<GuestBookingPage> {
                           Row(children: const [
                             Icon(Icons.wb_sunny_outlined,
                                 size: 16,
-                                color: Color(0xFFF59E0B)),
+                                color: Color(0xFF888888)),
                             SizedBox(width: 6),
                             Text("Mattina",
                                 style: TextStyle(
                                     fontWeight: FontWeight.w600,
                                     fontSize: 13,
-                                    color: Color(0xFFF59E0B))),
+                                    color: Color(0xFF555555))),
                           ]),
                           const SizedBox(height: 12),
                           Wrap(
@@ -1082,7 +1073,7 @@ class _GuestBookingPageState extends State<GuestBookingPage> {
                         color: _afternoonColor,
                         borderRadius: _borderRadius,
                         border: Border.all(
-                            color: const Color(0xFFBFD0F5)),
+                            color: const Color(0xFFE0DDD8)),
                       ),
                       child: Column(
                         crossAxisAlignment:
@@ -1091,13 +1082,13 @@ class _GuestBookingPageState extends State<GuestBookingPage> {
                           Row(children: const [
                             Icon(Icons.nights_stay_outlined,
                                 size: 16,
-                                color: Color(0xFF6366F1)),
+                                color: Color(0xFF888888)),
                             SizedBox(width: 6),
                             Text("Pomeriggio",
                                 style: TextStyle(
                                     fontWeight: FontWeight.w600,
                                     fontSize: 13,
-                                    color: Color(0xFF6366F1))),
+                                    color: Color(0xFF555555))),
                           ]),
                           const SizedBox(height: 12),
                           Wrap(
@@ -1154,8 +1145,7 @@ class _GuestBookingPageState extends State<GuestBookingPage> {
                     validator: (v) => v == null || v.trim().isEmpty
                         ? "Campo obbligatorio"
                         : null,
-                    decoration: _inputDecoration("Nome *",
-                        icon: Icons.person_outline),
+                    decoration: _inputDecoration("Nome *"),
                   ),
                   const SizedBox(height: 10),
                   TextFormField(
@@ -1172,16 +1162,13 @@ class _GuestBookingPageState extends State<GuestBookingPage> {
                     validator: (v) => v == null || v.trim().isEmpty
                         ? "Campo obbligatorio"
                         : null,
-                    decoration: _inputDecoration("Telefono *",
-                        icon: Icons.phone_outlined),
+                    decoration: _inputDecoration("Telefono *"),
                   ),
                   const SizedBox(height: 10),
                   TextFormField(
                     controller: emailController,
                     keyboardType: TextInputType.emailAddress,
-                    decoration: _inputDecoration(
-                        "Email (opzionale)",
-                        icon: Icons.mail_outline),
+                    decoration: _inputDecoration("Email (opzionale)"),
                     validator: (v) {
                       if (v == null || v.trim().isEmpty)
                         return null;
@@ -1204,7 +1191,7 @@ class _GuestBookingPageState extends State<GuestBookingPage> {
                         color: _confirmColor,
                         borderRadius: _borderRadius,
                         border: Border.all(
-                            color: const Color(0xFFA7D9B5)),
+                            color: const Color(0xFFE0DDD8)),
                       ),
                       child: Column(
                         crossAxisAlignment:
@@ -1214,7 +1201,7 @@ class _GuestBookingPageState extends State<GuestBookingPage> {
                               style: TextStyle(
                                   fontWeight: FontWeight.w700,
                                   fontSize: 14,
-                                  color: Colors.black87)),
+                                  color: Color(0xFF1A1A1A))),
                           const SizedBox(height: 14),
                           _RecapRow(
                               icon: Icons.spa_outlined,
@@ -1306,12 +1293,12 @@ class _SlotChip extends StatelessWidget {
         padding:
         const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
         decoration: BoxDecoration(
-          color: selected ? const Color(0xFF1A1A1A) : Colors.white,
+          color: selected ? const Color(0xFF1A1A1A) : const Color(0xFFF5F4F1),
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
             color: selected
                 ? const Color(0xFF1A1A1A)
-                : const Color(0xFFD8D5D0),
+                : const Color(0xFFE0DDD8),
             width: selected ? 1.5 : 1,
           ),
         ),
@@ -1341,12 +1328,12 @@ class _RecapRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Icon(icon, size: 16, color: const Color(0xFF3A9A5C)),
+        Icon(icon, size: 16, color: const Color(0xFF888888)),
         const SizedBox(width: 10),
         Expanded(
           child: Text(text,
               style: const TextStyle(
-                  fontSize: 14, color: Colors.black87)),
+                  fontSize: 14, color: Color(0xFF1A1A1A))),
         ),
       ],
     );
@@ -1360,4 +1347,5 @@ class _Interval {
   final DateTime end;
   const _Interval(this.start, this.end);
 }
+
 

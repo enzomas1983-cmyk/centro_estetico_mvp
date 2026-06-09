@@ -355,6 +355,15 @@ class _GuestBookingPageState extends State<GuestBookingPage> {
                 controller: emailController,
                 keyboardType: TextInputType.emailAddress,
                 decoration: const InputDecoration(labelText: "Email"),
+                validator: (v) {
+                  if (v == null || v.trim().isEmpty) return null; // email opzionale
+                  final emailRegex = RegExp(r'^[\w\.-]+@[\w\.-]+\.\w{2,}$');
+                  if (!emailRegex.hasMatch(v.trim())) {
+                    return "Formato email non valido (es. nome@dominio.it)";
+                  }
+                  return null;
+                },
+
               ),
 
               // SLOT DISPONIBILI

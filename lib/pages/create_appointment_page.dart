@@ -25,6 +25,8 @@ class CreateAppointmentPage extends StatefulWidget {
 class _CreateAppointmentPageState
     extends State<CreateAppointmentPage> {
 
+  String? _emailError;
+
   final supabase = Supabase.instance.client;
 
   List<Map<String, dynamic>> services = [];
@@ -159,32 +161,6 @@ class _CreateAppointmentPageState
     return response;
   }
 
-  /*void openCreateCustomerSheet() {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) {
-        return Padding(
-          padding: EdgeInsets.only(
-            bottom: MediaQuery.of(context).viewInsets.bottom,
-          ),
-          child: Container(
-            padding: const EdgeInsets.all(16),
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(20),
-                topRight: Radius.circular(20),
-              ),
-            ),
-            child: _buildCustomerForm(),
-          ),
-        );
-      },
-    );
-  }*/
-
   // modificato il    07.06.2026
 
   // ✅ Passa il testo già digitato al bottom sheet
@@ -248,9 +224,23 @@ class _CreateAppointmentPageState
           decoration: const InputDecoration(labelText: "Cognome *"),
         ),
 
-        TextField(
+        TextFormField(
           controller: newEmailController,
-          decoration: const InputDecoration(labelText: "Email *"),
+          keyboardType: TextInputType.emailAddress,
+          decoration: InputDecoration(
+            labelText: "Email *",
+            errorText: _emailError,
+          ),
+          onChanged: (v) {
+            final emailRegex = RegExp(r'^[\w\.-]+@[\w\.-]+\.\w{2,}$');
+            setState(() {
+              _emailError = v.trim().isEmpty
+                  ? null
+                  : !emailRegex.hasMatch(v.trim())
+                  ? "Formato email non valido (es. nome@dominio.it)"
+                  : null;
+            });
+          },
         ),
 
         TextField(
@@ -278,6 +268,20 @@ class _CreateAppointmentPageState
   }
 
   Future<void> _saveCustomerFromSheet() async {
+
+    final emailRegex = RegExp(r'^[\w\.-]+@[\w\.-]+\.\w{2,}$');
+    final email = newEmailController.text.trim();
+
+    if (email.isNotEmpty && !emailRegex.hasMatch(email)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Formato email non valido (es. nome@dominio.it)"),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
     if (newNameController.text.trim().isEmpty ||
         newSurnameController.text.trim().isEmpty ||
         newEmailController.text.trim().isEmpty) {

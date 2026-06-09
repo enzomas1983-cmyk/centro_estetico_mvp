@@ -534,16 +534,22 @@ class _GuestBookingPageState extends State<GuestBookingPage> {
   final emailController = TextEditingController();
 
   // ── Design tokens ──────────────────────────────────────────────
-  static const _maxWidth = 420.0;
-  static const _radius = Radius.circular(14.0);
-  static const _borderRadius = BorderRadius.all(_radius);
-  static const _cardColor = Color(0xFFFFFFFF);
-  static const _accentColor = Color(0xFF1A1A1A);
-  static const _chipSelected = Color(0xFF1A1A1A);
-  static const _chipUnselected = Color(0xFFF5F4F1);
-  static const _morningColor = Color(0xFFFFFFFF);
-  static const _afternoonColor = Color(0xFFFFFFFF);
-  static const _confirmColor = Color(0xFFFFFFFF);
+  static const _maxWidth        = 420.0;
+  static const _pageBg          = Color(0xFFF0F2F5);
+  static const _cardBg          = Color(0xFFFFFFFF);
+  static const _cardBorder      = Color(0xFFDDE2EA);
+  static const _navy            = Color(0xFF1C2130);
+  static const _blue            = Color(0xFF3B6FD4);
+  static const _blueLight       = Color(0xFFEEF3FC);
+  static const _textPrimary     = Color(0xFF1C2130);
+  static const _textSecondary   = Color(0xFF3D4A63);
+  static const _textMuted       = Color(0xFF7A8599);
+  static const _textHint        = Color(0xFFAAB2C2);
+  static const _chipBg          = Color(0xFFF0F2F5);
+  static const _green           = Color(0xFF2D8A4E);
+  static const _borderRadius    = BorderRadius.all(Radius.circular(16));
+  static const _borderRadiusMd  = BorderRadius.all(Radius.circular(12));
+  static const _borderRadiusSm  = BorderRadius.all(Radius.circular(8));
   // ───────────────────────────────────────────────────────────────
 
   @override
@@ -605,12 +611,12 @@ class _GuestBookingPageState extends State<GuestBookingPage> {
         ? service['duration_minutes']
         : int.tryParse('${service['duration_minutes']}') ?? 30;
 
-    final dayStartLocal = DateTime(
-        selectedDate.year, selectedDate.month, selectedDate.day, 8);
-    final dayEndLocal = DateTime(
-        selectedDate.year, selectedDate.month, selectedDate.day, 20);
+    final dayStartLocal =
+    DateTime(selectedDate.year, selectedDate.month, selectedDate.day, 8);
+    final dayEndLocal =
+    DateTime(selectedDate.year, selectedDate.month, selectedDate.day, 20);
     final dayStartUtc = dayStartLocal.toUtc();
-    final dayEndUtc = dayEndLocal.toUtc();
+    final dayEndUtc   = dayEndLocal.toUtc();
 
     try {
       final data = await supabase
@@ -631,22 +637,21 @@ class _GuestBookingPageState extends State<GuestBookingPage> {
       final now = DateTime.now();
       final List<DateTime> slots = [];
       const step = Duration(minutes: 15);
-      DateTime cursor = DateTime(
-          selectedDate.year, selectedDate.month, selectedDate.day, 8);
+      DateTime cursor =
+      DateTime(selectedDate.year, selectedDate.month, selectedDate.day, 8);
 
       while (true) {
         final startLocal = cursor;
-        final endLocal = startLocal.add(Duration(minutes: durationMinutes));
+        final endLocal   = startLocal.add(Duration(minutes: durationMinutes));
         if (endLocal.isAfter(dayEndLocal)) break;
 
-        // ── Filtro orari già passati ──────────────────────────────
+        // Filtro orari già passati
         if (startLocal.isBefore(now)) {
           cursor = cursor.add(step);
           continue;
         }
 
-        final blocked =
-        BookingRules.isBlocked(start: startLocal, end: endLocal);
+        final blocked = BookingRules.isBlocked(start: startLocal, end: endLocal);
         if (blocked) {
           cursor = cursor.add(step);
           continue;
@@ -656,20 +661,14 @@ class _GuestBookingPageState extends State<GuestBookingPage> {
         for (final b in booked) {
           final overlap = startLocal.toUtc().isBefore(b.end) &&
               endLocal.toUtc().isAfter(b.start);
-          if (overlap) {
-            occupied = true;
-            break;
-          }
+          if (overlap) { occupied = true; break; }
         }
         if (!occupied) slots.add(startLocal);
         cursor = cursor.add(step);
       }
 
       if (!mounted) return;
-      setState(() {
-        availableSlots = slots;
-        selectedSlot = null;
-      });
+      setState(() { availableSlots = slots; selectedSlot = null; });
     } catch (e) {
       debugPrint("LOAD SLOTS ERROR => $e");
       if (!mounted) return;
@@ -696,9 +695,9 @@ class _GuestBookingPageState extends State<GuestBookingPage> {
     setState(() => isLoading = true);
     try {
       final localStart = selectedSlot!;
-      final startUtc = localStart.toUtc();
-      final duration = durationMap[selectedServiceId!] ?? 30;
-      final endUtc = startUtc.add(Duration(minutes: duration));
+      final startUtc   = localStart.toUtc();
+      final duration   = durationMap[selectedServiceId!] ?? 30;
+      final endUtc     = startUtc.add(Duration(minutes: duration));
 
       final blocked = BookingRules.isBlocked(
           start: startUtc.toLocal(), end: endUtc.toLocal());
@@ -725,16 +724,16 @@ class _GuestBookingPageState extends State<GuestBookingPage> {
       if (existing != null) {
         customerId = existing['id'];
         await supabase.from('customers').update({
-          'name': nameController.text.trim(),
+          'name':    nameController.text.trim(),
           'surname': surnameController.text.trim(),
-          'email': emailController.text.trim(),
+          'email':   emailController.text.trim(),
         }).eq('id', customerId);
       } else {
         final created = await supabase.from('customers').insert({
-          'name': nameController.text.trim(),
-          'surname': surnameController.text.trim(),
-          'phone': phoneController.text.trim(),
-          'email': emailController.text.trim(),
+          'name':        nameController.text.trim(),
+          'surname':     surnameController.text.trim(),
+          'phone':       phoneController.text.trim(),
+          'email':       emailController.text.trim(),
           'business_id': widget.businessId,
         }).select().single();
         customerId = created['id'];
@@ -743,10 +742,10 @@ class _GuestBookingPageState extends State<GuestBookingPage> {
       final appointment = await supabase.from('appointments').insert({
         'business_id': widget.businessId,
         'customer_id': customerId,
-        'service_id': selectedServiceId,
-        'start_time': startUtc.toIso8601String(),
-        'end_time': endUtc.toIso8601String(),
-        'status': 'scheduled',
+        'service_id':  selectedServiceId,
+        'start_time':  startUtc.toIso8601String(),
+        'end_time':    endUtc.toIso8601String(),
+        'status':      'scheduled',
       }).select().single();
 
       final email = emailController.text.trim();
@@ -765,15 +764,15 @@ class _GuestBookingPageState extends State<GuestBookingPage> {
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          backgroundColor: Colors.green,
+          backgroundColor: _green,
           duration: const Duration(seconds: 5),
           content: Text(confirmMessage),
         ),
       );
 
       setState(() {
-        selectedSlot = null;
-        availableSlots = [];
+        selectedSlot      = null;
+        availableSlots    = [];
         selectedServiceId = null;
       });
       nameController.clear();
@@ -795,46 +794,107 @@ class _GuestBookingPageState extends State<GuestBookingPage> {
   String _formatSlot(DateTime slot) =>
       "${slot.hour.toString().padLeft(2, '0')}:${slot.minute.toString().padLeft(2, '0')}";
 
-  InputDecoration _inputDecoration(String label) {
+  InputDecoration _inputDecoration(String label, String tag) {
     return InputDecoration(
       labelText: label,
+      labelStyle: const TextStyle(color: _textHint, fontSize: 14),
+      suffixText: tag,
+      suffixStyle: const TextStyle(
+          color: _textHint, fontSize: 10, fontWeight: FontWeight.w700,
+          letterSpacing: 0.6),
       filled: true,
-      fillColor: Colors.white,
+      fillColor: _cardBg,
       contentPadding:
-      const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+      const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
       border: OutlineInputBorder(
-        borderRadius: _borderRadius,
-        borderSide: const BorderSide(color: Color(0xFFE0DDD8), width: 1),
-      ),
+          borderRadius: _borderRadiusMd,
+          borderSide: const BorderSide(color: _cardBorder, width: 1)),
       enabledBorder: OutlineInputBorder(
-        borderRadius: _borderRadius,
-        borderSide: const BorderSide(color: Color(0xFFE0DDD8), width: 1),
-      ),
+          borderRadius: _borderRadiusMd,
+          borderSide: const BorderSide(color: _cardBorder, width: 1)),
       focusedBorder: OutlineInputBorder(
-        borderRadius: _borderRadius,
-        borderSide: const BorderSide(color: _accentColor, width: 1.5),
-      ),
+          borderRadius: _borderRadiusMd,
+          borderSide: const BorderSide(color: _blue, width: 1.5)),
       errorBorder: OutlineInputBorder(
-        borderRadius: _borderRadius,
-        borderSide: const BorderSide(color: Colors.red, width: 1),
-      ),
+          borderRadius: _borderRadiusMd,
+          borderSide: const BorderSide(color: Colors.red, width: 1)),
       focusedErrorBorder: OutlineInputBorder(
-        borderRadius: _borderRadius,
-        borderSide: const BorderSide(color: Colors.red, width: 1.5),
-      ),
-      labelStyle: const TextStyle(color: Colors.black45, fontSize: 14),
+          borderRadius: _borderRadiusMd,
+          borderSide: const BorderSide(color: Colors.red, width: 1.5)),
     );
   }
 
   Widget _sectionLabel(String text) => Padding(
-    padding: const EdgeInsets.only(bottom: 10),
+    padding: const EdgeInsets.only(bottom: 6),
     child: Text(text,
         style: const TextStyle(
-            fontSize: 13,
-            fontWeight: FontWeight.w600,
-            color: Colors.black54,
-            letterSpacing: 0.4)),
+            fontSize: 10,
+            fontWeight: FontWeight.w700,
+            color: _textMuted,
+            letterSpacing: 0.8)),
   );
+
+  Widget _slotSection({
+    required IconData icon,
+    required Color iconColor,
+    required String label,
+    required List<DateTime> slots,
+  }) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: _cardBg,
+        borderRadius: _borderRadius,
+        border: Border.all(color: _cardBorder),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(icon, size: 15, color: iconColor),
+              const SizedBox(width: 6),
+              Text(label,
+                  style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                      color: _textPrimary)),
+              const Spacer(),
+              Container(
+                padding:
+                const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                decoration: BoxDecoration(
+                    color: _blueLight,
+                    borderRadius: BorderRadius.circular(99)),
+                child: Text(
+                  "${slots.length} disponibili",
+                  style: const TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w700,
+                      color: _blue),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Wrap(
+            spacing: 6,
+            runSpacing: 6,
+            children: slots.map((slot) {
+              final sel = selectedSlot != null &&
+                  selectedSlot!.isAtSameMomentAs(slot);
+              return _SlotChip(
+                label: _formatSlot(slot),
+                selected: sel,
+                onTap: () => setState(() => selectedSlot = slot),
+              );
+            }).toList(),
+          ),
+        ],
+      ),
+    );
+  }
 
   // ── Build ────────────────────────────────────────────────────────
 
@@ -842,8 +902,8 @@ class _GuestBookingPageState extends State<GuestBookingPage> {
   Widget build(BuildContext context) {
     Map<String, dynamic>? selectedService;
     try {
-      selectedService = services
-          .firstWhere((s) => s['id'].toString() == selectedServiceId);
+      selectedService =
+          services.firstWhere((s) => s['id'].toString() == selectedServiceId);
     } catch (_) {
       selectedService = null;
     }
@@ -853,32 +913,41 @@ class _GuestBookingPageState extends State<GuestBookingPage> {
         selectedService?['duration_minutes']?.toString() ?? '';
     final serviceSelected = selectedServiceId != null;
 
-    final morningSlots =
-    availableSlots.where((s) => s.hour < 13).toList();
-    final afternoonSlots =
-    availableSlots.where((s) => s.hour >= 14).toList();
+    final morningSlots   = availableSlots.where((s) => s.hour < 13).toList();
+    final afternoonSlots = availableSlots.where((s) => s.hour >= 14).toList();
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F4F1),
+      backgroundColor: _pageBg,
       appBar: AppBar(
-        backgroundColor: const Color(0xFFF5F4F1),
+        backgroundColor: _pageBg,
         elevation: 0,
+        surfaceTintColor: Colors.transparent,
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1),
+          child: Container(height: 1, color: _cardBorder),
+        ),
         title: const Text(
           "Prenota online",
           style: TextStyle(
-              color: Colors.black87,
+              color: _textPrimary,
               fontWeight: FontWeight.w600,
-              fontSize: 18),
+              fontSize: 16,
+              letterSpacing: -0.2),
         ),
         centerTitle: true,
+        leading: IconButton(
+          icon: const Icon(Icons.chevron_left, color: _blue, size: 26),
+          onPressed: () => Navigator.of(context).maybePop(),
+        ),
       ),
       body: isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(
+          child: CircularProgressIndicator(color: _blue))
           : Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: _maxWidth),
           child: SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 40),
+            padding: const EdgeInsets.fromLTRB(14, 16, 14, 40),
             child: Form(
               key: _formKey,
               child: Column(
@@ -889,13 +958,12 @@ class _GuestBookingPageState extends State<GuestBookingPage> {
                   _sectionLabel("SERVIZIO"),
                   Container(
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: _cardBg,
                       borderRadius: _borderRadius,
-                      border: Border.all(
-                          color: const Color(0xFFE0DDD8)),
+                      border: Border.all(color: _cardBorder),
                     ),
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 14),
+                    padding:
+                    const EdgeInsets.symmetric(horizontal: 14),
                     child: DropdownButtonHideUnderline(
                       child: DropdownButtonFormField<String>(
                         value: selectedServiceId,
@@ -906,19 +974,21 @@ class _GuestBookingPageState extends State<GuestBookingPage> {
                         ),
                         hint: const Text("Seleziona servizio",
                             style: TextStyle(
-                                color: Colors.black45,
-                                fontSize: 14)),
+                                color: _textHint, fontSize: 14)),
+                        style: const TextStyle(
+                            color: _textPrimary,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500),
+                        icon: const Icon(Icons.keyboard_arrow_down,
+                            color: _textHint),
                         items: services
                             .map((s) => DropdownMenuItem(
                           value: s['id'].toString(),
-                          child: Text(s['name'],
-                              style: const TextStyle(
-                                  fontSize: 15)),
+                          child: Text(s['name']),
                         ))
                             .toList(),
                         onChanged: (v) async {
-                          setState(
-                                  () => selectedServiceId = v);
+                          setState(() => selectedServiceId = v);
                           await loadAvailableSlots();
                         },
                       ),
@@ -927,46 +997,65 @@ class _GuestBookingPageState extends State<GuestBookingPage> {
 
                   // ── PREVIEW SERVIZIO ─────────────────────
                   if (serviceSelected) ...[
-                    const SizedBox(height: 14),
+                    const SizedBox(height: 10),
                     Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 18, horizontal: 20),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFFFFFFF),
+                        color: _cardBg,
                         borderRadius: _borderRadius,
-                        border: Border.all(
-                            color: const Color(0xFFE0DDD8)),
+                        border: Border.all(color: _cardBorder),
                       ),
-                      child: Column(
-                        children: [
-                          const Text("Stai prenotando per",
-                              style: TextStyle(
-                                  fontSize: 13,
-                                  color: Color(0xFF999999))),
-                          const SizedBox(height: 6),
-                          Text(selectedServiceName,
-                              style: const TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.w700,
-                                  color: Color(0xFF1A1A1A))),
-                          const SizedBox(height: 4),
-                          Text(
-                              "Durata: $selectedServiceDuration minuti",
-                              style: const TextStyle(
-                                  fontSize: 13,
-                                  color: Color(0xFF999999))),
-                        ],
+                      padding: const EdgeInsets.all(14),
+                      child: Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 14, horizontal: 16),
+                        decoration: BoxDecoration(
+                          color: _blueLight,
+                          borderRadius: _borderRadiusMd,
+                        ),
+                        child: Column(
+                          children: [
+                            const Text("Stai prenotando",
+                                style: TextStyle(
+                                    fontSize: 11,
+                                    color: _textMuted,
+                                    fontWeight: FontWeight.w500)),
+                            const SizedBox(height: 4),
+                            Text(selectedServiceName,
+                                style: const TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w700,
+                                    color: _textPrimary,
+                                    letterSpacing: -0.3)),
+                            const SizedBox(height: 4),
+                            Row(
+                              mainAxisAlignment:
+                              MainAxisAlignment.center,
+                              children: [
+                                const Icon(Icons.access_time,
+                                    size: 12, color: _blue),
+                                const SizedBox(width: 4),
+                                Text(
+                                    "$selectedServiceDuration minuti",
+                                    style: const TextStyle(
+                                        fontSize: 12,
+                                        color: _blue,
+                                        fontWeight:
+                                        FontWeight.w500)),
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ],
 
                   // ── DATA ─────────────────────────────────
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 16),
                   _sectionLabel("DATA"),
                   SizedBox(
                     width: double.infinity,
-                    child: ElevatedButton(
+                    child: ElevatedButton.icon(
                       onPressed: serviceSelected
                           ? () async {
                         final picked = await showDatePicker(
@@ -977,138 +1066,65 @@ class _GuestBookingPageState extends State<GuestBookingPage> {
                           initialDate: selectedDate,
                         );
                         if (picked != null) {
-                          setState(() => selectedDate = picked);
+                          setState(
+                                  () => selectedDate = picked);
                           await loadAvailableSlots();
                         }
                       }
                           : null,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF1A1A1A),
-                        disabledBackgroundColor:
-                        const Color(0xFFCCCAC6),
+                        backgroundColor: _navy,
+                        disabledBackgroundColor: _textHint,
                         foregroundColor: Colors.white,
                         elevation: 0,
                         padding: const EdgeInsets.symmetric(
-                            vertical: 15),
+                            vertical: 14),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(30),
                         ),
                       ),
-                      child: const Text(
-                        "Seleziona data",
-                        style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            letterSpacing: 0.2),
-                      ),
+                      icon: const Icon(Icons.calendar_today_outlined,
+                          size: 15),
+                      label: const Text("Seleziona data",
+                          style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              letterSpacing: -0.1)),
                     ),
                   ),
                   if (serviceSelected) ...[
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 6),
                     Center(
                       child: Text(
                         DateFormat('dd MMMM yyyy', 'it_IT')
                             .format(selectedDate),
                         style: const TextStyle(
-                            fontSize: 13, color: Colors.black45),
+                            fontSize: 12,
+                            color: _blue,
+                            fontWeight: FontWeight.w500),
                       ),
                     ),
                   ],
 
                   // ── SLOT MATTINA ─────────────────────────
                   if (morningSlots.isNotEmpty) ...[
-                    const SizedBox(height: 20),
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: _morningColor,
-                        borderRadius: _borderRadius,
-                        border: Border.all(
-                            color: const Color(0xFFE0DDD8)),
-                      ),
-                      child: Column(
-                        crossAxisAlignment:
-                        CrossAxisAlignment.start,
-                        children: [
-                          Row(children: const [
-                            Icon(Icons.wb_sunny_outlined,
-                                size: 16,
-                                color: Color(0xFF888888)),
-                            SizedBox(width: 6),
-                            Text("Mattina",
-                                style: TextStyle(
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 13,
-                                    color: Color(0xFF555555))),
-                          ]),
-                          const SizedBox(height: 12),
-                          Wrap(
-                            spacing: 8,
-                            runSpacing: 8,
-                            children: morningSlots.map((slot) {
-                              final sel = selectedSlot != null &&
-                                  selectedSlot!
-                                      .isAtSameMomentAs(slot);
-                              return _SlotChip(
-                                label: _formatSlot(slot),
-                                selected: sel,
-                                onTap: () => setState(
-                                        () => selectedSlot = slot),
-                              );
-                            }).toList(),
-                          ),
-                        ],
-                      ),
+                    const SizedBox(height: 16),
+                    _slotSection(
+                      icon: Icons.wb_sunny_outlined,
+                      iconColor: const Color(0xFFF59E0B),
+                      label: "Mattina",
+                      slots: morningSlots,
                     ),
                   ],
 
                   // ── SLOT POMERIGGIO ──────────────────────
                   if (afternoonSlots.isNotEmpty) ...[
-                    const SizedBox(height: 12),
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: _afternoonColor,
-                        borderRadius: _borderRadius,
-                        border: Border.all(
-                            color: const Color(0xFFE0DDD8)),
-                      ),
-                      child: Column(
-                        crossAxisAlignment:
-                        CrossAxisAlignment.start,
-                        children: [
-                          Row(children: const [
-                            Icon(Icons.nights_stay_outlined,
-                                size: 16,
-                                color: Color(0xFF888888)),
-                            SizedBox(width: 6),
-                            Text("Pomeriggio",
-                                style: TextStyle(
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 13,
-                                    color: Color(0xFF555555))),
-                          ]),
-                          const SizedBox(height: 12),
-                          Wrap(
-                            spacing: 8,
-                            runSpacing: 8,
-                            children:
-                            afternoonSlots.map((slot) {
-                              final sel = selectedSlot != null &&
-                                  selectedSlot!
-                                      .isAtSameMomentAs(slot);
-                              return _SlotChip(
-                                label: _formatSlot(slot),
-                                selected: sel,
-                                onTap: () => setState(
-                                        () => selectedSlot = slot),
-                              );
-                            }).toList(),
-                          ),
-                        ],
-                      ),
+                    const SizedBox(height: 10),
+                    _slotSection(
+                      icon: Icons.nights_stay_outlined,
+                      iconColor: const Color(0xFF7C84F0),
+                      label: "Pomeriggio",
+                      slots: afternoonSlots,
                     ),
                   ],
 
@@ -1117,20 +1133,20 @@ class _GuestBookingPageState extends State<GuestBookingPage> {
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFF5F4F2),
+                        color: _cardBg,
                         borderRadius: _borderRadius,
+                        border: Border.all(color: _cardBorder),
                       ),
                       child: const Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Icon(Icons.event_busy_outlined,
-                              size: 16, color: Colors.black38),
+                              size: 16, color: _textHint),
                           SizedBox(width: 8),
                           Text(
                             "Nessun orario disponibile per questa data",
                             style: TextStyle(
-                                color: Colors.black45,
-                                fontSize: 13),
+                                color: _textMuted, fontSize: 13),
                           ),
                         ],
                       ),
@@ -1138,44 +1154,46 @@ class _GuestBookingPageState extends State<GuestBookingPage> {
                   ],
 
                   // ── FORM DATI ────────────────────────────
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 20),
                   _sectionLabel("I TUOI DATI"),
                   TextFormField(
                     controller: nameController,
                     validator: (v) => v == null || v.trim().isEmpty
                         ? "Campo obbligatorio"
                         : null,
-                    decoration: _inputDecoration("Nome *"),
+                    decoration: _inputDecoration("Nome *", "NOME"),
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 8),
                   TextFormField(
                     controller: surnameController,
                     validator: (v) => v == null || v.trim().isEmpty
                         ? "Campo obbligatorio"
                         : null,
-                    decoration: _inputDecoration("Cognome *"),
+                    decoration:
+                    _inputDecoration("Cognome *", "COGNOME"),
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 8),
                   TextFormField(
                     controller: phoneController,
                     keyboardType: TextInputType.phone,
                     validator: (v) => v == null || v.trim().isEmpty
                         ? "Campo obbligatorio"
                         : null,
-                    decoration: _inputDecoration("Telefono *"),
+                    decoration:
+                    _inputDecoration("Telefono *", "TEL"),
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 8),
                   TextFormField(
                     controller: emailController,
                     keyboardType: TextInputType.emailAddress,
-                    decoration: _inputDecoration("Email (opzionale)"),
+                    decoration: _inputDecoration(
+                        "Email (opzionale)", "EMAIL"),
                     validator: (v) {
-                      if (v == null || v.trim().isEmpty)
-                        return null;
-                      final emailRegex = RegExp(
-                          r'^[\w\.-]+@[\w\.-]+\.\w{2,}$');
+                      if (v == null || v.trim().isEmpty) return null;
+                      final emailRegex =
+                      RegExp(r'^[\w\.-]+@[\w\.-]+\.\w{2,}$');
                       if (!emailRegex.hasMatch(v.trim())) {
-                        return "Formato email non valido (es. nome@dominio.it)";
+                        return "Formato email non valido";
                       }
                       return null;
                     },
@@ -1184,78 +1202,97 @@ class _GuestBookingPageState extends State<GuestBookingPage> {
                   // ── RECAP ────────────────────────────────
                   if (selectedSlot != null) ...[
                     const SizedBox(height: 20),
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(18),
-                      decoration: BoxDecoration(
-                        color: _confirmColor,
-                        borderRadius: _borderRadius,
-                        border: Border.all(
-                            color: const Color(0xFFE0DDD8)),
-                      ),
+                    ClipRRect(
+                      borderRadius: _borderRadius,
                       child: Column(
-                        crossAxisAlignment:
-                        CrossAxisAlignment.start,
                         children: [
-                          const Text("Riepilogo prenotazione",
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w700,
-                                  fontSize: 14,
-                                  color: Color(0xFF1A1A1A))),
-                          const SizedBox(height: 14),
-                          _RecapRow(
-                              icon: Icons.spa_outlined,
-                              text: selectedServiceName),
-                          const SizedBox(height: 8),
-                          _RecapRow(
-                            icon: Icons.calendar_today_outlined,
-                            text: DateFormat('dd MMMM yyyy',
-                                'it_IT')
-                                .format(selectedDate),
+                          // Header scuro
+                          Container(
+                            width: double.infinity,
+                            color: _navy,
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 12),
+                            child: Row(
+                              children: const [
+                                Icon(Icons.check_circle_outline,
+                                    size: 15,
+                                    color: Color(0xFFAAB2C2)),
+                                SizedBox(width: 8),
+                                Text("Riepilogo prenotazione",
+                                    style: TextStyle(
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.white,
+                                        letterSpacing: -0.1)),
+                              ],
+                            ),
                           ),
-                          const SizedBox(height: 8),
-                          _RecapRow(
-                            icon: Icons.access_time_outlined,
-                            text: _formatSlot(selectedSlot!),
-                          ),
-                          const SizedBox(height: 8),
-                          _RecapRow(
-                            icon: Icons.timer_outlined,
-                            text:
-                            "Durata: $selectedServiceDuration minuti",
+                          // Body righe
+                          Container(
+                            decoration: BoxDecoration(
+                              color: _cardBg,
+                              border: Border.all(color: _cardBorder),
+                              borderRadius: const BorderRadius.only(
+                                bottomLeft: Radius.circular(16),
+                                bottomRight: Radius.circular(16),
+                              ),
+                            ),
+                            child: Column(
+                              children: [
+                                _RecapRow(
+                                    icon: Icons.spa_outlined,
+                                    label: "Servizio",
+                                    value: selectedServiceName),
+                                _RecapRow(
+                                    icon: Icons.calendar_today_outlined,
+                                    label: "Data",
+                                    value: DateFormat(
+                                        'dd MMM yyyy', 'it_IT')
+                                        .format(selectedDate)),
+                                _RecapRow(
+                                    icon: Icons.access_time_outlined,
+                                    label: "Orario",
+                                    value: _formatSlot(selectedSlot!)),
+                                _RecapRow(
+                                    icon: Icons.hourglass_bottom_outlined,
+                                    label: "Durata",
+                                    value:
+                                    "$selectedServiceDuration min",
+                                    isLast: true),
+                              ],
+                            ),
                           ),
                         ],
                       ),
                     ),
                     const SizedBox(height: 20),
                     Center(
-                      child: ElevatedButton(
-                        onPressed:
-                        isLoading ? null : createBooking,
+                      child: ElevatedButton.icon(
+                        onPressed: isLoading ? null : createBooking,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF2D8A4E),
+                          backgroundColor: _green,
                           foregroundColor: Colors.white,
                           elevation: 0,
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 32, vertical: 13),
+                              horizontal: 30, vertical: 13),
                           shape: RoundedRectangleBorder(
-                            borderRadius: _borderRadius,
+                            borderRadius: _borderRadiusMd,
                           ),
                         ),
-                        child: isLoading
+                        icon: isLoading
                             ? const SizedBox(
-                          width: 18,
-                          height: 18,
-                          child: CircularProgressIndicator(
-                              color: Colors.white,
-                              strokeWidth: 2),
-                        )
-                            : const Text(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(
+                                color: Colors.white,
+                                strokeWidth: 2))
+                            : const Icon(Icons.check, size: 16),
+                        label: const Text(
                           "Conferma prenotazione",
                           style: TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.w600,
-                              letterSpacing: 0.2),
+                              letterSpacing: 0.1),
                         ),
                       ),
                     ),
@@ -1271,7 +1308,7 @@ class _GuestBookingPageState extends State<GuestBookingPage> {
   }
 }
 
-// ── Chip orario ─────────────────────────────────────────────────────
+// ── Chip orario ──────────────────────────────────────────────────────
 
 class _SlotChip extends StatelessWidget {
   final String label;
@@ -1284,31 +1321,32 @@ class _SlotChip extends StatelessWidget {
     required this.onTap,
   });
 
+  static const _blue  = Color(0xFF3B6FD4);
+  static const _navy  = Color(0xFF1C2130);
+  static const _chipBg = Color(0xFFF0F2F5);
+  static const _border = Color(0xFFDDE2EA);
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 150),
-        padding:
-        const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
-          color: selected ? const Color(0xFF1A1A1A) : const Color(0xFFF5F4F1),
-          borderRadius: BorderRadius.circular(10),
+          color: selected ? _blue : _chipBg,
+          borderRadius: BorderRadius.circular(8),
           border: Border.all(
-            color: selected
-                ? const Color(0xFF1A1A1A)
-                : const Color(0xFFE0DDD8),
+            color: selected ? _blue : _border,
             width: selected ? 1.5 : 1,
           ),
         ),
         child: Text(
           label,
           style: TextStyle(
-            fontSize: 13,
-            fontWeight:
-            selected ? FontWeight.w600 : FontWeight.w400,
-            color: selected ? Colors.white : Colors.black87,
+            fontSize: 12,
+            fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
+            color: selected ? Colors.white : const Color(0xFF3D4A63),
           ),
         ),
       ),
@@ -1320,21 +1358,46 @@ class _SlotChip extends StatelessWidget {
 
 class _RecapRow extends StatelessWidget {
   final IconData icon;
-  final String text;
+  final String label;
+  final String value;
+  final bool isLast;
 
-  const _RecapRow({required this.icon, required this.text});
+  const _RecapRow({
+    required this.icon,
+    required this.label,
+    required this.value,
+    this.isLast = false,
+  });
+
+  static const _blue          = Color(0xFF3B6FD4);
+  static const _textSecondary = Color(0xFF3D4A63);
+  static const _textPrimary   = Color(0xFF1C2130);
+  static const _divider       = Color(0xFFF0F2F5);
 
   @override
   Widget build(BuildContext context) {
-    return Row(
+    return Column(
       children: [
-        Icon(icon, size: 16, color: const Color(0xFF888888)),
-        const SizedBox(width: 10),
-        Expanded(
-          child: Text(text,
-              style: const TextStyle(
-                  fontSize: 14, color: Color(0xFF1A1A1A))),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          child: Row(
+            children: [
+              Icon(icon, size: 15, color: _blue),
+              const SizedBox(width: 10),
+              Text(label,
+                  style: const TextStyle(
+                      fontSize: 13, color: _textSecondary)),
+              const Spacer(),
+              Text(value,
+                  style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: _textPrimary)),
+            ],
+          ),
         ),
+        if (!isLast)
+          const Divider(height: 1, thickness: 1, color: _divider),
       ],
     );
   }
@@ -1347,5 +1410,6 @@ class _Interval {
   final DateTime end;
   const _Interval(this.start, this.end);
 }
+
 
 

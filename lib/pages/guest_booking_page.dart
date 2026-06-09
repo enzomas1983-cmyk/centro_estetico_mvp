@@ -64,12 +64,15 @@ class _GuestBookingPageState extends State<GuestBookingPage> {
     } catch (e) {
       debugPrint("LOAD SERVICES ERROR => $e");
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Errore nel caricamento dei servizi"),
-          backgroundColor: Colors.red,
-        ),
-      );
+      // ✅ mostra errore solo se i servizi sono effettivamente vuoti
+      if (services.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Errore nel caricamento dei servizi"),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     } finally {
       if (mounted) setState(() => isLoading = false);
     }

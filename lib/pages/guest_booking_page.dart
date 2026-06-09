@@ -267,6 +267,335 @@ class _GuestBookingPageState extends State<GuestBookingPage> {
     final selectedServiceDuration = selectedService?['duration_minutes']?.toString() ?? '';
 
     return Scaffold(
+      backgroundColor: const Color(0xFFF1F5F9),
+      appBar: AppBar(
+        backgroundColor: const Color(0xFFF1F5F9),
+        elevation: 0,
+        title: const Text("Prenota online",
+            style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF0F172A))),
+        iconTheme: const IconThemeData(color: Color(0xFF0F172A)),
+      ),
+      body: isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+
+              // ── CARD PRINCIPALE ──
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.06), blurRadius: 12)],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+
+                    // SERVIZIO
+                    DropdownButtonFormField<String>(
+                      decoration: InputDecoration(
+                        labelText: "Seleziona servizio",
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                        filled: true,
+                        fillColor: const Color(0xFFF8FAFC),
+                      ),
+                      items: services.map((s) => DropdownMenuItem(
+                        value: s['id'].toString(),
+                        child: Text(s['name']),
+                      )).toList(),
+                      onChanged: (v) async {
+                        setState(() => selectedServiceId = v);
+                        await loadAvailableSlots();
+                      },
+                    ),
+
+                    const SizedBox(height: 16),
+
+                    // PULSANTE DATA
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF0F172A),
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      ),
+                      onPressed: serviceSelected ? () async {
+                        final picked = await showDatePicker(
+                          context: context,
+                          firstDate: DateTime.now(),
+                          lastDate: DateTime.now().add(const Duration(days: 365)),
+                          initialDate: selectedDate,
+                        );
+                        if (picked != null) {
+                          setState(() => selectedDate = picked);
+                          await loadAvailableSlots();
+                        }
+                      } : null,
+                      child: const Text("Seleziona data",
+                          style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
+                    ),
+
+                    // DATA SELEZIONATA
+                    if (serviceSelected) ...[
+                      const SizedBox(height: 8),
+                      Center(
+                        child: Text(
+                          "Stai prenotando per ${selectedDate.day.toString().padLeft(2,'0')}/${selectedDate.month.toString().padLeft(2,'0')}/${selectedDate.year}",
+                          style: const TextStyle(fontSize: 13, color: Color(0xFF64748B)),
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 16),
+
+              // ── SLOT MATTINA ──
+              if (availableSlots.where((s) => s.hour < 13).isNotEmpty) ...[
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.06), blurRadius: 12)],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Row(children: [
+                        Icon(Icons.wb_sunny, size: 18, color: Colors.orange),
+                        SizedBox(width: 6),
+                        Text("Mattina", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                      ]),
+                      const SizedBox(height: 12),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: availableSlots.where((s) => s.hour < 13).map((slot) {
+                          final selected = selectedSlot != null && selectedSlot!.isAtSameMomentAs(slot);
+                          final label = "${slot.hour.toString().padLeft(2,'0')}:${slot.minute.toString().padLeft(2,'0')}";
+                          return ChoiceChip(
+                            label: Text(label, style: TextStyle(
+                              fontWeight: FontWeight.w500,
+                              color: selected ? Colors.white : const Color(0xFF0F172A),
+                            )),
+                            selected: selected,
+                            selectedColor: const Color(0xFF0F172A),
+                            backgroundColor: const Color(0xFFF1F5F9),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                            onSelected: (_) => setState(() => selectedSlot = slot),
+                          );
+                        }).toList(),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+              ],
+
+              // ── SLOT POMERIGGIO ──
+              if (availableSlots.where((s) => s.hour >= 14).isNotEmpty) ...[
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.06), blurRadius: 12)],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Row(children: [
+                        Icon(Icons.nights_stay, size: 18, color: Colors.indigo),
+                        SizedBox(width: 6),
+                        Text("Pomeriggio", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                      ]),
+                      const SizedBox(height: 12),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: availableSlots.where((s) => s.hour >= 14).map((slot) {
+                          final selected = selectedSlot != null && selectedSlot!.isAtSameMomentAs(slot);
+                          final label = "${slot.hour.toString().padLeft(2,'0')}:${slot.minute.toString().padLeft(2,'0')}";
+                          return ChoiceChip(
+                            label: Text(label, style: TextStyle(
+                              fontWeight: FontWeight.w500,
+                              color: selected ? Colors.white : const Color(0xFF0F172A),
+                            )),
+                            selected: selected,
+                            selectedColor: const Color(0xFF0F172A),
+                            backgroundColor: const Color(0xFFF1F5F9),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                            onSelected: (_) => setState(() => selectedSlot = slot),
+                          );
+                        }).toList(),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+              ],
+
+              if (availableSlots.isEmpty && serviceSelected) ...[
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: const Center(
+                    child: Text("Nessun orario disponibile per questa data",
+                        style: TextStyle(color: Color(0xFF94A3B8))),
+                  ),
+                ),
+                const SizedBox(height: 16),
+              ],
+
+              // ── FORM DATI ──
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.06), blurRadius: 12)],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text("I tuoi dati",
+                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Color(0xFF0F172A))),
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      controller: nameController,
+                      validator: (v) => v == null || v.trim().isEmpty ? "Campo obbligatorio" : null,
+                      decoration: InputDecoration(
+                        labelText: "Nome *",
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                        filled: true, fillColor: const Color(0xFFF8FAFC),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    TextFormField(
+                      controller: surnameController,
+                      validator: (v) => v == null || v.trim().isEmpty ? "Campo obbligatorio" : null,
+                      decoration: InputDecoration(
+                        labelText: "Cognome *",
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                        filled: true, fillColor: const Color(0xFFF8FAFC),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    TextFormField(
+                      controller: phoneController,
+                      keyboardType: TextInputType.phone,
+                      validator: (v) => v == null || v.trim().isEmpty ? "Campo obbligatorio" : null,
+                      decoration: InputDecoration(
+                        labelText: "Telefono *",
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                        filled: true, fillColor: const Color(0xFFF8FAFC),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    TextFormField(
+                      controller: emailController,
+                      keyboardType: TextInputType.emailAddress,
+                      decoration: InputDecoration(
+                        labelText: "Email",
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                        filled: true, fillColor: const Color(0xFFF8FAFC),
+                      ),
+                      validator: (v) {
+                        if (v == null || v.trim().isEmpty) return null;
+                        final emailRegex = RegExp(r'^[\w\.-]+@[\w\.-]+\.\w{2,}$');
+                        if (!emailRegex.hasMatch(v.trim())) {
+                          return "Formato email non valido (es. nome@dominio.it)";
+                        }
+                        return null;
+                      },
+                    ),
+                  ],
+                ),
+              ),
+
+              // ── RIEPILOGO + BOTTONE ──
+              if (selectedSlot != null) ...[
+                const SizedBox(height: 16),
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF0FDF4),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: const Color(0xFF86EFAC)),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text("Riepilogo prenotazione",
+                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Color(0xFF166534))),
+                      const SizedBox(height: 12),
+                      _recapRow(Icons.spa, selectedServiceName),
+                      const SizedBox(height: 8),
+                      _recapRow(Icons.calendar_today, DateFormat('dd MMMM yyyy', 'it_IT').format(selectedDate)),
+                      const SizedBox(height: 8),
+                      _recapRow(Icons.access_time,
+                          "${selectedSlot!.hour.toString().padLeft(2,'0')}:${selectedSlot!.minute.toString().padLeft(2,'0')}"),
+                      const SizedBox(height: 8),
+                      _recapRow(Icons.timer, "Durata: $selectedServiceDuration minuti"),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF0F172A),
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                  onPressed: isLoading ? null : createBooking,
+                  child: isLoading
+                      ? const CircularProgressIndicator(color: Colors.white)
+                      : const Text("Conferma prenotazione",
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                ),
+              ],
+
+              const SizedBox(height: 32),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _recapRow(IconData icon, String text) {
+    return Row(children: [
+      Icon(icon, size: 18, color: const Color(0xFF16A34A)),
+      const SizedBox(width: 8),
+      Text(text, style: const TextStyle(fontSize: 15, color: Color(0xFF166534))),
+    ]);
+  }
+
+  /*@override
+  Widget build(BuildContext context) {
+    final serviceSelected = selectedServiceId != null;
+    Map<String, dynamic>? selectedService;
+    try {
+      selectedService = services.firstWhere((s) => s['id'].toString() == selectedServiceId);
+    } catch (_) {
+      selectedService = null;
+    }
+    final selectedServiceName = selectedService?['name']?.toString() ?? '';
+    final selectedServiceDuration = selectedService?['duration_minutes']?.toString() ?? '';
+
+    return Scaffold(
       appBar: AppBar(title: const Text("Prenota online")),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -494,7 +823,7 @@ class _GuestBookingPageState extends State<GuestBookingPage> {
         ),
       ),
     );
-  }
+  }*/
 }
 
 class _Interval {

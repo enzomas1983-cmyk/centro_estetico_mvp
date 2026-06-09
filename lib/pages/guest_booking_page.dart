@@ -1243,7 +1243,7 @@ class _GuestBookingPageState extends State<GuestBookingPage> {
                     validator: (v) {
                       if (v == null || v.trim().isEmpty) return "Campo obbligatorio";
                       if (v.trim().length < 2) return "Minimo 2 caratteri";
-                      if (!RegExp(r"^[a-zA-ZàáâäãåèéêëìíîïòóôöùúûüÀÁÂÄÃÅÈÉÊËÌÍÎÏÒÓÔÖÙÚÛÜ '\-]+\$").hasMatch(v.trim()))
+                      if (!RegExp(r"^[a-zA-ZàáâäãåèéêëìíîïòóôöùúûüÀÁÂÄÃÅÈÉÊËÌÍÎÏÒÓÔÖÙÚÛÜ '\-]+$").hasMatch(v.trim()))
                         return "Solo lettere e spazi";
                       return null;
                     },
@@ -1255,7 +1255,7 @@ class _GuestBookingPageState extends State<GuestBookingPage> {
                     validator: (v) {
                       if (v == null || v.trim().isEmpty) return "Campo obbligatorio";
                       if (v.trim().length < 2) return "Minimo 2 caratteri";
-                      if (!RegExp(r"^[a-zA-ZàáâäãåèéêëìíîïòóôöùúûüÀÁÂÄÃÅÈÉÊËÌÍÎÏÒÓÔÖÙÚÛÜ '\-]+\$").hasMatch(v.trim()))
+                      if (!RegExp(r"^[a-zA-ZàáâäãåèéêëìíîïòóôöùúûüÀÁÂÄÃÅÈÉÊËÌÍÎÏÒÓÔÖÙÚÛÜ '\-]+$").hasMatch(v.trim()))
                         return "Solo lettere e spazi";
                       return null;
                     },
@@ -1268,8 +1268,8 @@ class _GuestBookingPageState extends State<GuestBookingPage> {
                     keyboardType: TextInputType.phone,
                     validator: (v) {
                       if (v == null || v.trim().isEmpty) return "Campo obbligatorio";
-                      final digits = v.trim().replaceAll(RegExp(r'\s'), '');
-                      if (!RegExp(r'^[0-9]+\$').hasMatch(digits)) return "Solo numeri";
+                      final digits = v.trim().replaceAll(RegExp(r'\s+'), '');
+                      if (!RegExp(r'^[0-9]+$').hasMatch(digits)) return "Solo numeri";
                       if (digits.length != 10) return "Inserisci 10 cifre (es. 3451234567)";
                       return null;
                     },
@@ -1529,6 +1529,7 @@ class _Interval {
   final DateTime end;
   const _Interval(this.start, this.end);
 }
+
 
 
 

@@ -503,6 +503,8 @@ class _Interval {
   const _Interval(this.start, this.end);
 }*/
 
+
+
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../core/booking_rules.dart';
@@ -935,10 +937,7 @@ class _GuestBookingPageState extends State<GuestBookingPage> {
               letterSpacing: -0.2),
         ),
         centerTitle: true,
-        leading: IconButton(
-          icon: const Icon(Icons.chevron_left, color: _blue, size: 26),
-          onPressed: () => Navigator.of(context).maybePop(),
-        ),
+        automaticallyImplyLeading: false,
       ),
       body: isLoading
           ? const Center(
@@ -1410,6 +1409,7 @@ class _Interval {
   final DateTime end;
   const _Interval(this.start, this.end);
 }
+
 
 
 

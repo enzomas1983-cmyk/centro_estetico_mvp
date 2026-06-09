@@ -1,6 +1,6 @@
 class AppConfig {
-  static const String baseUrl = "https://centro-estetico-mvp.vercel.app";
+  static const String baseUrl = "https://www.mvenzo.it";
 
-  static String bookingUrl(String businessId) => "$baseUrl/book/$businessId";
+  static String bookingUrl(String appointmentId) => "$baseUrl/book/$appointmentId";
   static String cancelUrl(String appointmentId) => "$baseUrl/cancel/$appointmentId";
 }

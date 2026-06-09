@@ -566,6 +566,7 @@ class _GuestBookingPageState extends State<GuestBookingPage> {
   @override
   void initState() {
     super.initState();
+    phoneController.text = '+39 ';
     if (widget.businessId.isEmpty) return;
     loadServices();
   }
@@ -829,6 +830,7 @@ class _GuestBookingPageState extends State<GuestBookingPage> {
   Widget _sectionLabel(String text) => Padding(
     padding: const EdgeInsets.only(bottom: 6),
     child: Text(text,
+        textAlign: TextAlign.center,
         style: const TextStyle(
             fontSize: 10,
             fontWeight: FontWeight.w700,
@@ -932,9 +934,9 @@ class _GuestBookingPageState extends State<GuestBookingPage> {
           "Prenota online",
           style: TextStyle(
               color: _textPrimary,
-              fontWeight: FontWeight.w600,
-              fontSize: 16,
-              letterSpacing: -0.2),
+              fontWeight: FontWeight.w700,
+              fontSize: 22,
+              letterSpacing: -0.5),
         ),
         centerTitle: true,
         automaticallyImplyLeading: false,
@@ -1178,8 +1180,25 @@ class _GuestBookingPageState extends State<GuestBookingPage> {
                     validator: (v) => v == null || v.trim().isEmpty
                         ? "Campo obbligatorio"
                         : null,
-                    decoration:
-                    _inputDecoration("Telefono *", "TEL"),
+                    decoration: _inputDecoration("Telefono *", "TEL").copyWith(
+                      prefixIcon: const Padding(
+                        padding: EdgeInsets.only(left: 14, right: 8),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text("🇮🇹", style: TextStyle(fontSize: 18)),
+                            SizedBox(width: 6),
+                            Text("+39",
+                                style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                    color: Color(0xFF1C2130))),
+                          ],
+                        ),
+                      ),
+                      contentPadding: EdgeInsets.only(
+                          left: 0, right: 16, top: 15, bottom: 15),
+                    ),
                   ),
                   const SizedBox(height: 8),
                   TextFormField(
@@ -1409,6 +1428,7 @@ class _Interval {
   final DateTime end;
   const _Interval(this.start, this.end);
 }
+
 
 
 
